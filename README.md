@@ -1,2 +1,2 @@
-# django-jenkis-plugin
+# django-jenkins-plugin
 Django Jenkins Plugin
