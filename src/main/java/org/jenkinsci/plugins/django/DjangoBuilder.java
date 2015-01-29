@@ -34,31 +34,32 @@ import java.io.IOException;
  */
 public class DjangoBuilder extends Builder {
 
-    private final String name;
+    private final String tasks;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public DjangoBuilder(String name) {
-        this.name = name;
+    public DjangoBuilder(String tasks) {
+        this.tasks = tasks;
     }
 
     /**
      * We'll use this from the <tt>config.jelly</tt>.
      */
-    public String getName() {
-        return name;
+    public String getTasks() {
+        return tasks;
     }
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
-        // This is where you 'build' the project.
-        // Since this is a dummy, we just say 'hello world' and call that a build.
-
-        // This also shows how you can consult the global configuration of the builder
-        if (getDescriptor().getUseFrench())
-            listener.getLogger().println("Bonjour, "+name+"!");
-        else
-            listener.getLogger().println("Hello, "+name+"!");
+	String doTasks;
+	if ((tasks == null) || (tasks.trim().length() == 0)) {
+	    doTasks = getDescriptor().getDefaultTasks();
+	}
+	else {
+	    listener.getLogger().println("Tasks length: "+ tasks.trim().length());	    
+	    doTasks = tasks;
+	}
+	listener.getLogger().println("Django build started with: "+doTasks);	    
         return true;
     }
 
@@ -87,7 +88,7 @@ public class DjangoBuilder extends Builder {
          * <p>
          * If you don't want fields to be persisted, use <tt>transient</tt>.
          */
-        private boolean useFrench;
+        private String defaultTasks;
 
         /**
          * In order to load the persisted global configuration, you have to 
@@ -111,10 +112,6 @@ public class DjangoBuilder extends Builder {
          */
         public FormValidation doCheckName(@QueryParameter String value)
                 throws IOException, ServletException {
-            if (value.length() == 0)
-                return FormValidation.error("Please set a name");
-            if (value.length() < 4)
-                return FormValidation.warning("Isn't the name too short?");
             return FormValidation.ok();
         }
 
@@ -127,16 +124,15 @@ public class DjangoBuilder extends Builder {
          * This human readable name is used in the configuration screen.
          */
         public String getDisplayName() {
-            return "Say hello world";
+            return "Django-Jenkins";
         }
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             // To persist global configuration information,
             // set that to properties and call save().
-            useFrench = formData.getBoolean("useFrench");
+            defaultTasks = formData.getString("defaultTasks");
             // ^Can also use req.bindJSON(this, formData);
-            //  (easier when there are many fields; need set* methods for this, like setUseFrench)
             save();
             return super.configure(req,formData);
         }
@@ -147,8 +143,8 @@ public class DjangoBuilder extends Builder {
          * The method name is bit awkward because global.jelly calls this method to determine
          * the initial state of the checkbox by the naming convention.
          */
-        public boolean getUseFrench() {
-            return useFrench;
+        public String getDefaultTasks() {
+            return defaultTasks;
         }
     }
 }
