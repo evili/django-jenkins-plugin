@@ -27,10 +27,6 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
 		public static final String DEFAULT_TASKS = "test";
 		private String defaultTasks = DEFAULT_TASKS;
-
-		public DescriptorImpl() throws IOException {
-			load();
-		}
 		
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject json)
@@ -54,7 +50,6 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 		public String getDisplayName() {
 			return "Django Jenkins Builder";
 		}
-
 	}
 	
 	@DataBoundConstructor
@@ -64,11 +59,6 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
 	public String getTasks() {
 		return tasks;
-	}
-
-	@Override
-	public DescriptorImpl getDescriptor() {
-		return (DescriptorImpl) super.getDescriptor();
 	}
 
 	@Override
