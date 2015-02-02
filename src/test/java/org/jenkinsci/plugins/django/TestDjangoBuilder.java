@@ -6,11 +6,17 @@ import hudson.model.FreeStyleBuild;
 
 import org.apache.commons.io.FileUtils;
 
-public class DjangoBuilderTestCase extends AbstractDjangoTestCase {
+@Rule public JenkinsRule jenkinsRule = new JenkinsRule();
+
+public class TestDjangoBuilder {
 	private final static String NO_TASK = "nonsensetask";
 
-	public void testPluginLoads() throws Exception {
+    public void setUp() {
         
+    }
+    @Test
+	public void testPluginLoads() throws Exception {
+        FreeStyleProject project = JenkinsRule.createFreeStyleProject();
 		djangoBuilder = new DjangoJenkinsBuilder(NO_TASK);
 		project.getBuildersList().add(djangoBuilder);
 		FreeStyleBuild build = project.scheduleBuild2(0).get();
