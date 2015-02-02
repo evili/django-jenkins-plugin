@@ -2,18 +2,22 @@ package org.jenkinsci.plugins.django;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
+
 import hudson.model.FreeStyleBuild;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
 import org.apache.commons.io.FileUtils;
 
-@Rule public JenkinsRule jenkinsRule = new JenkinsRule();
+@Rule
+public JenkinsRule jenkinsRule = new JenkinsRule();
 
 public class TestDjangoBuilder {
+
 	private final static String NO_TASK = "nonsensetask";
 
-    public void setUp() {
-        
-    }
     @Test
 	public void testPluginLoads() throws Exception {
         FreeStyleProject project = JenkinsRule.createFreeStyleProject();
