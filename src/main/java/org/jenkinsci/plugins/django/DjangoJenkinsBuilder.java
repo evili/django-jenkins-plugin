@@ -11,7 +11,6 @@ import hudson.tasks.Builder;
 import java.io.IOException;
 import java.io.Serializable;
 
-import jenkins.plugins.shiningpanda.builders.VirtualenvBuilder;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
