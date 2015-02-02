@@ -22,13 +22,13 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	private final String tasks;
 
 	@Extension
-	public static final class DjangoJenkinsDescriptor
+	public static final class DescriptorImpl
         extends BuildStepDescriptor<Builder> {
 
 		public static final String DEFAULT_TASKS = "test";
 		private String defaultTasks = DEFAULT_TASKS;
 
-		public DjangoJenkinsDescriptor() throws IOException {
+		public DescriptorImpl() throws IOException {
 			load();
 		}
 		
@@ -67,8 +67,8 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	}
 
 	@Override
-	public DjangoJenkinsDescriptor getDescriptor() {
-		return (DjangoJenkinsDescriptor) super.getDescriptor();
+	public DescriptorImpl getDescriptor() {
+		return (DescriptorImpl) super.getDescriptor();
 	}
 
 	@Override
