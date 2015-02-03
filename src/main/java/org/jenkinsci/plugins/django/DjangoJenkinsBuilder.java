@@ -71,7 +71,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 		PythonVirtualenv venv = new PythonVirtualenv(build, launcher, listener);
 		
 		try {
-			status =  venv.perform();
+			status =  venv.perform(tasks);
 		}
 		catch(Exception e) {
 			status = false;
