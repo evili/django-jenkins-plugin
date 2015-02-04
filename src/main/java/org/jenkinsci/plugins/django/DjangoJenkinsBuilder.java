@@ -25,7 +25,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	public static final class DescriptorImpl
         extends BuildStepDescriptor<Builder> {
 
-		public static final String DEFAULT_TASKS = "test";
+		public static final String DEFAULT_TASKS = "jenkins";
 		private String defaultTasks = DEFAULT_TASKS;
 		
 		@Override
