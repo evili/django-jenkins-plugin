@@ -14,9 +14,11 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 
 	private static final long serialVersionUID = 1L;
 	private PrintStream logger;
+	private String settingsModule;
 
-	public CreateDjangoModuleSettings(PrintStream logger) {
+	public CreateDjangoModuleSettings(PrintStream logger, String settingsModule) {
 		this.logger = logger;
+		this.settingsModule = settingsModule;
 	}
 
 	@Override
@@ -31,10 +33,10 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 		File settingsFile;
 		PrintWriter settingsWriter;
 		try {
-			settingsFile = new File(f, "settings.py");
+			settingsFile = new File(f, PythonVirtualenv.DJANGO_JENKINS_SETTINGS+".py");
 			settingsFile.createNewFile();
 			settingsWriter = new PrintWriter(settingsFile);
-			settingsWriter.println("from whatever.settings import *");
+			settingsWriter.println("from "+settingsModule+" import *");
 			settingsWriter.println("INSTALLED_APPS = ('django_extensions'," +
                   "'django_jenkins',) +INSTALLED_APPS");
 			settingsWriter.println("JENKINS_TASKS = (\n"+
