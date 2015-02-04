@@ -1,7 +1,9 @@
 package org.jenkinsci.plugins.django;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import hudson.Plugin;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 
@@ -18,7 +20,12 @@ public class TestDjangoBuilder {
 	private DjangoJenkinsBuilder djangoBuilder;
 
 	private final static String NO_TASK = "nonsensetask";
-
+	@Test
+	public void testGlobalConfig() throws Exception {
+		Plugin djPlugin = jRule.getPluginManager().getPlugin("django").getPlugin();
+		assertThat("Django Plugin sould not be null.", djPlugin, notNullValue());
+	}
+	
 	@Test
 	public void testRoundTrip() throws Exception {
 		DjangoJenkinsBuilder before = new DjangoJenkinsBuilder(NO_TASK);
@@ -31,8 +38,9 @@ public class TestDjangoBuilder {
         FreeStyleProject project = jRule.createFreeStyleProject();
 		djangoBuilder = new DjangoJenkinsBuilder(NO_TASK);
 		project.getBuildersList().add(djangoBuilder);
-		FreeStyleBuild build = project.scheduleBuild2(0).get();
+		FreeStyleBuild build = project.scheduleBuild2(1).get();
 		String s = FileUtils.readFileToString(build.getLogFile());
-		assertThat(s, containsString(NO_TASK));
+		System.err.print(s);
+		assertThat("Output should contain scheduled tasks.", s, containsString(NO_TASK));
 	}
 }
