@@ -117,7 +117,8 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 		
 		try {
 			LOGGER.info("Calling venv.perform");
-			status =  venv.perform(tasks);
+			String actualTasks = ((tasks == null) || tasks.isEmpty()) ? DescriptorImpl.DEFAULT_TASKS: tasks;
+			status =  venv.perform(actualTasks);
 		}
 		catch(Exception e) {
 			LOGGER.info("Something went wrong: "+e.getMessage());
