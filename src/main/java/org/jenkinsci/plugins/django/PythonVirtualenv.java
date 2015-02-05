@@ -67,6 +67,7 @@ public class PythonVirtualenv implements Serializable {
 
 	public boolean perform(String tasks) throws InterruptedException,
 			IOException {
+		
 		DjangoJenkinsBuilder.LOGGER.info("Perfroming "+tasks);
 
 		logger = listener.getLogger();
@@ -107,12 +108,12 @@ public class PythonVirtualenv implements Serializable {
 		FilePath djModule = new FilePath(build.getWorkspace(),
 				DJANGO_JENKINS_MODULE);
 		DjangoJenkinsBuilder.LOGGER.info("Finding Django project settings");
-		String settingsModule = djModule.act(new DjangoProjectSettingsFinder(logger));
+		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder(logger));
 		DjangoJenkinsBuilder.LOGGER.info("Creating Build Package");
 		djModule.act(new CreateBuildPackage(logger));
 		DjangoJenkinsBuilder.LOGGER.info("Creating jenkins settings module");
 		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule));
 		DjangoJenkinsBuilder.LOGGER.info("Returning settings: "+settingsModule);
-		return "export DJANGO_SETTINGS_MODULE="+DJANGO_JENKINS_MODULE+"."+settingsModule;
+		return "export DJANGO_SETTINGS_MODULE="+DJANGO_JENKINS_MODULE+"."+DJANGO_JENKINS_SETTINGS;
 	}
 }
