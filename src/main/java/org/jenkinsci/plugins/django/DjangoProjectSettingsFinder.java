@@ -11,8 +11,6 @@ import java.util.Iterator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.NotFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.jenkinsci.remoting.RoleChecker;
 
 public class DjangoProjectSettingsFinder implements FileCallable<String> {
