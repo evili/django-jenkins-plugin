@@ -12,13 +12,11 @@ import hudson.tasks.Builder;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -32,14 +30,15 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
 	final static Logger LOGGER = Logger.getLogger(DjangoJenkinsBuilder.class.getName());
 
-	private final List<String> tasks;
+	private final String tasks;
+	public boolean pep8;
 
 	static {
 		DEFAULT_TASKS.add("pep8");
 		FileHandler h;
 		SimpleFormatter f = new SimpleFormatter();
 		try {
-			h = new FileHandler("%t/django-jenkins-builder-%g.log", 1024*1024, 2, true);
+			h = new FileHandler("%t/django-jenkins-builder.log", 1024*1024, 2, true);
 			h.setLevel(Level.ALL);
 			h.setFormatter(f);
 			LOGGER.addHandler(h);
@@ -53,10 +52,10 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
 		LOGGER.setLevel(Level.ALL);
 	}
-	
+
 	@Override
 	public Descriptor<Builder> getDescriptor() {
-		
+
 		LOGGER.info("Returning descriptor");
 		return (DescriptorImpl) super.getDescriptor();
 	}
@@ -65,12 +64,14 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	public static final class DescriptorImpl
         extends BuildStepDescriptor<Builder> {
 
-		private List<String> defaultTasks = DEFAULT_TASKS;
-		
+		private String defaultTasks = DEFAULT_TASKS.get(0);
+
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject json)
 				throws FormException {
-			LOGGER.info("In configure");
+			LOGGER.info("In configure:");
+			LOGGER.info(json.toString(2));
+			/*
 			JSONArray jsonTasks = json.getJSONArray("tasks");
 			if (jsonTasks!=null) {
 				defaultTasks = new ArrayList<String>();
@@ -78,13 +79,15 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 					defaultTasks.add(jsonTasks.getString(i));
 				}
 			}
+			*/
+			defaultTasks = json.getString("defaultTasks");
 			LOGGER.info("Saving...");
 			save();
 			LOGGER.info("Returning super.configure");
-			return super.configure(req, json);		
+			return super.configure(req, json);
 		}
 
-		public List<String> getDefaultTasks() {
+		public String getDefaultTasks() {
 			LOGGER.info("Returning default tasks: "+defaultTasks);
 			return defaultTasks;
 		}
@@ -102,14 +105,19 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 			return DISPLAY_NAME;
 		}
 	}
-	
+
 	@DataBoundConstructor
-	public DjangoJenkinsBuilder(List<String> noTasks) {
+	public DjangoJenkinsBuilder(String tasks) {
 		LOGGER.info("In Constructor");
-		this.tasks = noTasks;
+		//this.tasks = noTasks;
+		this.tasks = tasks;
 	}
 
-	public List<String> getTasks() {
+	public boolean isPep8() {
+		return pep8;
+	}
+
+	public String getTasks() {
 		LOGGER.info("Returning tasks: "+tasks);
 		return tasks;
 	}
@@ -120,15 +128,17 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
 		LOGGER.info("Performing build");
 		listener.getLogger().println("Calling seyUpVirtualenv");
-		
+
 		boolean status = false;
 
 		PythonVirtualenv venv = new PythonVirtualenv(build, launcher, listener);
-		
+
 		try {
 			LOGGER.info("Calling venv.perform");
-			List<String> actualTasks = ((tasks == null) || tasks.isEmpty()) ? DEFAULT_TASKS: tasks;
-			status =  venv.perform(actualTasks);
+			String actualTasks = ((tasks == null) || (tasks.length() == 0)) ? DEFAULT_TASKS.get(0): tasks;
+			ArrayList<String> tl = new ArrayList<String>();
+			tl.add(actualTasks);
+			status =  venv.perform(tl);
 		}
 		catch(Exception e) {
 			LOGGER.info("Something went wrong: "+e.getMessage());

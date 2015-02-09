@@ -25,36 +25,36 @@ public class TestDjangoBuilder {
 	private DjangoJenkinsBuilder djangoBuilder;
 
 	private final static String NON_SENSE = "nonsensetask";
-	
+
 	private final static ArrayList<String> NO_TASKS = new ArrayList<String>();
 	static {
 		NO_TASKS.add(NON_SENSE);
 	}
-	
+
 	private final static ArrayList<String> DEFAULT_TASKS = new ArrayList<String>();
 
 	private static final String DJANGO_TEST_PROJECT_GIT_URL = "https://github.com/evili/django_test_deploy.git";
 	static {
 		DEFAULT_TASKS.add("pep8");
 	}
-	
+
 	@Test
 	public void testGlobalConfig() throws Exception {
 		Plugin djPlugin = jRule.getPluginManager().getPlugin("django").getPlugin();
 		assertThat("Django Plugin sould not be null.", djPlugin, notNullValue());
 	}
-	
+
 	@Test
 	public void testRoundTrip() throws Exception {
-		DjangoJenkinsBuilder before = new DjangoJenkinsBuilder(NO_TASKS);
+		DjangoJenkinsBuilder before = new DjangoJenkinsBuilder(DEFAULT_TASKS.get(0));
 		DjangoJenkinsBuilder after = jRule.configRoundtrip(before);
 		jRule.assertEqualBeans(before, after, "tasks");
 	}
-	
+
     @Test
 	public void testPluginLoads() throws Exception {
         FreeStyleProject project = jRule.createFreeStyleProject();
-		djangoBuilder = new DjangoJenkinsBuilder(DEFAULT_TASKS);
+		djangoBuilder = new DjangoJenkinsBuilder(DEFAULT_TASKS.get(0));
 		project.getBuildersList().add(djangoBuilder);
 		GitSCM scm = new GitSCM(DJANGO_TEST_PROJECT_GIT_URL);
 		project.setScm(scm);
