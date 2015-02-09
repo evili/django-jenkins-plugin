@@ -4,10 +4,7 @@
   <f:section title="Django Jenkins Builder">
     <f:entry title="Jenkins Default Tasks" field="defaultTasks"
       description="List of django-jenkins default tasks to be executed">
-           <f:checkbox  name="pep8" value="true"/>
-           <f:checkbox  name="pyflakes" value="false"/>
-           <f:checkbox  name="flake8" value="false"/>
-           <f:checkbox  name="pylint" value="false"/>
+      <f:textarea/>
     </f:entry>
   </f:section>
 </j:jelly>
