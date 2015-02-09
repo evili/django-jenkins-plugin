@@ -60,7 +60,7 @@ public class ProjectRequirementsFinder implements FileCallable<String> {
 		}
 		String pkgPath = dir.toURI().relativize(found.getParentFile().toURI()).toString(); 
 		DjangoJenkinsBuilder.LOGGER.info("Pakage found: "+pkgPath);
-		String module =pkgPath.replace(File.separatorChar, '.')+foundCandidate;
+		String module = pkgPath+foundCandidate;
 		DjangoJenkinsBuilder.LOGGER.info("Settings module is: "+module);
 		return module;
 	}
