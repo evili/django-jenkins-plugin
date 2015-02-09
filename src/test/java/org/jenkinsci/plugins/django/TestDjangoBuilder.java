@@ -6,12 +6,13 @@ import static org.junit.Assert.assertThat;
 import hudson.Plugin;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
-import hudson.scm.SCM;
+import hudson.plugins.git.GitSCM;
 
 import java.util.ArrayList;
 
+import jenkins.scm.DefaultSCMCheckoutStrategyImpl;
+
 import org.apache.commons.io.FileUtils;
-import org.jenkinsci.plugins.git
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -31,6 +32,8 @@ public class TestDjangoBuilder {
 	}
 	
 	private final static ArrayList<String> DEFAULT_TASKS = new ArrayList<String>();
+
+	private static final String DJANGO_TEST_PROJECT_GIT_URL = "https://github.com/evili/django_test_deploy.git";
 	static {
 		DEFAULT_TASKS.add("pep8");
 	}
@@ -53,7 +56,10 @@ public class TestDjangoBuilder {
         FreeStyleProject project = jRule.createFreeStyleProject();
 		djangoBuilder = new DjangoJenkinsBuilder(DEFAULT_TASKS);
 		project.getBuildersList().add(djangoBuilder);
+		GitSCM scm = new GitSCM(DJANGO_TEST_PROJECT_GIT_URL);
 		project.setScm(scm);
+		DefaultSCMCheckoutStrategyImpl scmCheckoutStrategy = new DefaultSCMCheckoutStrategyImpl();
+		project.setScmCheckoutStrategy(scmCheckoutStrategy);
 		FreeStyleBuild build = project.scheduleBuild2(1).get();
 		String s = FileUtils.readFileToString(build.getLogFile());
 		System.err.print(s);

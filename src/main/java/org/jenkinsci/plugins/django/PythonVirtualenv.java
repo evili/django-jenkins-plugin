@@ -117,7 +117,7 @@ public class PythonVirtualenv implements Serializable {
 			logger.println("No requirements file found:");
 			logger.println(e.getMessage());
 		}
-		return requirementsFile;
+		return "pip install -r "+requirementsFile;
 	}
 	
 	private String createBuildPackage(List<String> tasks) throws IOException,
