@@ -65,10 +65,10 @@ public class PythonVirtualenv implements Serializable {
 		this.listener = listener;
 	}
 
-	public boolean perform(String tasks) throws InterruptedException,
+	public boolean perform(List<String> actualTasks) throws InterruptedException,
 			IOException {
 		
-		DjangoJenkinsBuilder.LOGGER.info("Perfroming "+tasks);
+		DjangoJenkinsBuilder.LOGGER.info("Perfroming "+actualTasks);
 
 		logger = listener.getLogger();
 		List<PythonInstallation> pInstalls = PythonInstallationFinder
@@ -76,16 +76,22 @@ public class PythonVirtualenv implements Serializable {
 		String pythonName = pInstalls.get(0).getName();
 
 		ArrayList<String> commandList = new ArrayList<String>();
+
 		DjangoJenkinsBuilder.LOGGER.info("Installing Django Requirements");
 		commandList.add(installDjangoJenkinsRequirements());
+
+		DjangoJenkinsBuilder.LOGGER.info("Installing Project Requirements");
+		commandList.add(installProjectRequirements());
+
 		DjangoJenkinsBuilder.LOGGER.info("Building jenkins package/module");
-		commandList.add(createBuildPackage());
+		commandList.add(createBuildPackage(actualTasks));
+
 		DjangoJenkinsBuilder.LOGGER.info("Adding jenkins tasks");
-		commandList.add("$PYTHON_EXE manage.py " + tasks);
+		commandList.add("$PYTHON_EXE manage.py jenkins");
 
 		String command = StringUtils.join(commandList, "\n");
 		DjangoJenkinsBuilder.LOGGER.info("Command:\n"+command);
-		
+
 		logger.println("Final Command: ");
 		logger.println(EQUAL_LINE);
 		logger.println(command);
@@ -102,17 +108,30 @@ public class PythonVirtualenv implements Serializable {
 		return "pip install " + DJANGO_JENKINS_REQUIREMENTS;
 	}
 
-	private String createBuildPackage() throws IOException,
+	private String installProjectRequirements() throws InterruptedException {
+		String requirementsFile = "# No project requirements found";
+		try {
+			requirementsFile = build.getWorkspace().act(new ProjectRequirementsFinder(logger));
+		}
+		catch(IOException e) {
+			logger.println("No requirements file found:");
+			logger.println(e.getMessage());
+		}
+		return requirementsFile;
+	}
+	
+	private String createBuildPackage(List<String> tasks) throws IOException,
 			InterruptedException {
 
 		FilePath djModule = new FilePath(build.getWorkspace(),
 				DJANGO_JENKINS_MODULE);
 		DjangoJenkinsBuilder.LOGGER.info("Finding Django project settings");
-		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder(logger));
+	
+		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder(logger));		
 		DjangoJenkinsBuilder.LOGGER.info("Creating Build Package");
 		djModule.act(new CreateBuildPackage(logger));
 		DjangoJenkinsBuilder.LOGGER.info("Creating jenkins settings module");
-		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule));
+		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule, tasks));
 		DjangoJenkinsBuilder.LOGGER.info("Returning settings: "+settingsModule);
 		return "export DJANGO_SETTINGS_MODULE="+DJANGO_JENKINS_MODULE+"."+DJANGO_JENKINS_SETTINGS;
 	}
