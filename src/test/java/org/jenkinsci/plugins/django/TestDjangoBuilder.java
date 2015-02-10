@@ -8,7 +8,7 @@ import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.plugins.git.GitSCM;
 
-import java.util.ArrayList;
+import java.util.EnumSet;
 
 import jenkins.scm.DefaultSCMCheckoutStrategyImpl;
 
@@ -24,19 +24,7 @@ public class TestDjangoBuilder {
 
 	private DjangoJenkinsBuilder djangoBuilder;
 
-	private final static String NON_SENSE = "nonsensetask";
-
-	private final static ArrayList<String> NO_TASKS = new ArrayList<String>();
-	static {
-		NO_TASKS.add(NON_SENSE);
-	}
-
-	private final static ArrayList<String> DEFAULT_TASKS = new ArrayList<String>();
-
 	private static final String DJANGO_TEST_PROJECT_GIT_URL = "https://github.com/evili/django_test_deploy.git";
-	static {
-		DEFAULT_TASKS.add("pep8");
-	}
 
 	@Test
 	public void testGlobalConfig() throws Exception {
@@ -46,7 +34,7 @@ public class TestDjangoBuilder {
 
 	@Test
 	public void testRoundTrip() throws Exception {
-		DjangoJenkinsBuilder before = new DjangoJenkinsBuilder(DEFAULT_TASKS.get(0));
+		DjangoJenkinsBuilder before = new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS);
 		DjangoJenkinsBuilder after = jRule.configRoundtrip(before);
 		jRule.assertEqualBeans(before, after, "tasks");
 	}
@@ -54,7 +42,7 @@ public class TestDjangoBuilder {
     @Test
 	public void testPluginLoads() throws Exception {
         FreeStyleProject project = jRule.createFreeStyleProject();
-		djangoBuilder = new DjangoJenkinsBuilder(DEFAULT_TASKS.get(0));
+		djangoBuilder = new DjangoJenkinsBuilder(EnumSet.of(Task.PEP8));
 		project.getBuildersList().add(djangoBuilder);
 		GitSCM scm = new GitSCM(DJANGO_TEST_PROJECT_GIT_URL);
 		project.setScm(scm);
@@ -63,6 +51,6 @@ public class TestDjangoBuilder {
 		FreeStyleBuild build = project.scheduleBuild2(1).get();
 		String s = FileUtils.readFileToString(build.getLogFile());
 		System.err.print(s);
-		assertThat("Output should contain scheduled tasks.", s, containsString(DEFAULT_TASKS.get(0)));
+		assertThat("Output should contain scheduled tasks.", s, containsString(s));
 	}
 }

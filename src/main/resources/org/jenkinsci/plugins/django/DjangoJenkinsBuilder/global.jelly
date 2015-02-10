@@ -4,7 +4,7 @@
   <f:section title="Django Jenkins Builder">
     <f:entry title="Jenkins Default Tasks" field="defaultTasks"
       description="List of django-jenkins default tasks to be executed">
-      <f:textarea/>
+      <f:enumSet field="defaultTasks"/>
     </f:entry>
   </f:section>
 </j:jelly>
