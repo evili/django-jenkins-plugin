@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import jenkins.plugins.shiningpanda.builders.VirtualenvBuilder;
@@ -20,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 public class PythonVirtualenv implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final String EQUAL_LINE = StringUtils.repeat("=", 72);
 	static final String DJANGO_JENKINS_REQUIREMENTS = "nosexcover pep8 pyflakes flake8 "
 			+ "coverage django-extensions django-jenkins";
@@ -65,9 +66,9 @@ public class PythonVirtualenv implements Serializable {
 		this.listener = listener;
 	}
 
-	public boolean perform(List<String> actualTasks) throws InterruptedException,
+	public boolean perform(EnumSet<Task> actualTasks) throws InterruptedException,
 			IOException {
-		
+
 		DjangoJenkinsBuilder.LOGGER.info("Perfroming "+actualTasks);
 
 		logger = listener.getLogger();
@@ -119,19 +120,19 @@ public class PythonVirtualenv implements Serializable {
 		}
 		return "pip install -r "+requirementsFile;
 	}
-	
-	private String createBuildPackage(List<String> tasks) throws IOException,
+
+	private String createBuildPackage(EnumSet<Task> actualTasks) throws IOException,
 			InterruptedException {
 
 		FilePath djModule = new FilePath(build.getWorkspace(),
 				DJANGO_JENKINS_MODULE);
 		DjangoJenkinsBuilder.LOGGER.info("Finding Django project settings");
-	
-		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder(logger));		
+
+		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder(logger));
 		DjangoJenkinsBuilder.LOGGER.info("Creating Build Package");
 		djModule.act(new CreateBuildPackage(logger));
 		DjangoJenkinsBuilder.LOGGER.info("Creating jenkins settings module");
-		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule, tasks));
+		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule, actualTasks));
 		DjangoJenkinsBuilder.LOGGER.info("Returning settings: "+settingsModule);
 		return "export DJANGO_SETTINGS_MODULE="+DJANGO_JENKINS_MODULE+"."+DJANGO_JENKINS_SETTINGS;
 	}

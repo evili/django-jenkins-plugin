@@ -11,7 +11,7 @@ import hudson.tasks.Builder;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,17 +24,15 @@ import org.kohsuke.stapler.StaplerRequest;
 
 public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 	public static final String DISPLAY_NAME = "Django Jenkins Builder";
-	public final static ArrayList<String> DEFAULT_TASKS = new ArrayList<String>();
+	public final static EnumSet<Task> DEFAULT_TASKS = EnumSet.of(Task.PEP8, Task.PYFLAKES);
 
 	final static Logger LOGGER = Logger.getLogger(DjangoJenkinsBuilder.class.getName());
 
-	private final String tasks;
-	public boolean pep8;
+	private final EnumSet<Task> tasks;
 
 	static {
-		DEFAULT_TASKS.add("pep8");
 		FileHandler h;
 		SimpleFormatter f = new SimpleFormatter();
 		try {
@@ -49,7 +47,6 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		LOGGER.setLevel(Level.ALL);
 	}
 
@@ -63,31 +60,22 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	@Extension
 	public static final class DescriptorImpl
         extends BuildStepDescriptor<Builder> {
-
-		private String defaultTasks = DEFAULT_TASKS.get(0);
+		private EnumSet<Task> defaultTasks = DjangoJenkinsBuilder.DEFAULT_TASKS;
 
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject json)
 				throws FormException {
 			LOGGER.info("In configure:");
 			LOGGER.info(json.toString(2));
-			/*
-			JSONArray jsonTasks = json.getJSONArray("tasks");
-			if (jsonTasks!=null) {
-				defaultTasks = new ArrayList<String>();
-				for(int i=0; i<jsonTasks.size(); i++) {
-					defaultTasks.add(jsonTasks.getString(i));
-				}
-			}
-			*/
-			defaultTasks = json.getString("defaultTasks");
+
+			//TODO: Obtain default tasks from the JSON object
 			LOGGER.info("Saving...");
 			save();
 			LOGGER.info("Returning super.configure");
 			return super.configure(req, json);
 		}
 
-		public String getDefaultTasks() {
+		public EnumSet<Task> getDefaultTasks() {
 			LOGGER.info("Returning default tasks: "+defaultTasks);
 			return defaultTasks;
 		}
@@ -107,17 +95,13 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	}
 
 	@DataBoundConstructor
-	public DjangoJenkinsBuilder(String tasks) {
+	public DjangoJenkinsBuilder(EnumSet<Task> tasks) {
 		LOGGER.info("In Constructor");
 		//this.tasks = noTasks;
 		this.tasks = tasks;
 	}
 
-	public boolean isPep8() {
-		return pep8;
-	}
-
-	public String getTasks() {
+	public EnumSet<Task> getTasks() {
 		LOGGER.info("Returning tasks: "+tasks);
 		return tasks;
 	}
@@ -135,10 +119,8 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
 		try {
 			LOGGER.info("Calling venv.perform");
-			String actualTasks = ((tasks == null) || (tasks.length() == 0)) ? DEFAULT_TASKS.get(0): tasks;
-			ArrayList<String> tl = new ArrayList<String>();
-			tl.add(actualTasks);
-			status =  venv.perform(tl);
+			EnumSet<Task> actualTasks = ((tasks == null) || (tasks.size() == 0)) ? DEFAULT_TASKS: tasks;
+			status =  venv.perform(actualTasks);
 		}
 		catch(Exception e) {
 			LOGGER.info("Something went wrong: "+e.getMessage());

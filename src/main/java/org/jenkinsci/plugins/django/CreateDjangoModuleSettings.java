@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.List;
+import java.util.EnumSet;
 
 import org.jenkinsci.remoting.RoleChecker;
 
@@ -16,12 +16,12 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 	private static final long serialVersionUID = 1L;
 	private PrintStream logger;
 	private String settingsModule;
-	private List<String> tasks;
+	private EnumSet<Task> tasks;
 
-	public CreateDjangoModuleSettings(PrintStream logger, String settingsModule, List<String> tasks) {
+	public CreateDjangoModuleSettings(PrintStream logger, String settingsModule, EnumSet<Task> actualTasks) {
 		this.logger = logger;
 		this.settingsModule = settingsModule;
-		this.tasks = tasks;
+		this.tasks = actualTasks;
 	}
 
 	@Override
@@ -43,8 +43,8 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 			settingsWriter.println("INSTALLED_APPS = ('django_extensions'," +
                   "'django_jenkins',) +INSTALLED_APPS");
 			settingsWriter.println("JENKINS_TASKS = (\n");
-			for (String s: tasks) {
-                  settingsWriter.println("'django_jenkins.tasks.run_"+s+"',");
+			for (Task s: tasks) {
+                  settingsWriter.println("'"+s.getPythonPackage()+"',");
 			}
             settingsWriter.println(  ")");
 			settingsWriter.close();
