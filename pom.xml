@@ -48,7 +48,20 @@
       <url>http://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
-  
+ <reporting>
+  <plugins>
+   <plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>findbugs-maven-plugin</artifactId>
+    <version>3.0.0</version>
+    <configuration>
+     <findbugsXmlOutput>true</findbugsXmlOutput>
+     <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+     <xmlOutput>true</xmlOutput>
+    </configuration>
+   </plugin>
+  </plugins>
+ </reporting>
   <dependencies>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -62,4 +75,9 @@
     </dependency>
   </dependencies>
   
+  <inceptionYear>2015</inceptionYear>
+  <ciManagement>
+   <url>https://mdrc.no-ip/ci/job/${project.artifactId}-plugin-test/</url>
+   <system>hudson</system>
+  </ciManagement>
 </project>
