@@ -31,6 +31,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	final static Logger LOGGER = Logger.getLogger(DjangoJenkinsBuilder.class.getName());
 
 	private final EnumSet<Task> tasks;
+	private String projectApps;
 
 	static {
 		FileHandler h;
@@ -95,10 +96,11 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	}
 
 	@DataBoundConstructor
-	public DjangoJenkinsBuilder(EnumSet<Task> tasks) {
+	public DjangoJenkinsBuilder(EnumSet<Task> tasks, String projectApps) {
 		LOGGER.info("In Constructor");
 		//this.tasks = noTasks;
 		this.tasks = tasks;
+		this.projectApps = projectApps;
 	}
 
 	public EnumSet<Task> getTasks() {
