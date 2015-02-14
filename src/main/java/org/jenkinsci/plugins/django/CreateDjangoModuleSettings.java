@@ -17,11 +17,13 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 	private PrintStream logger;
 	private String settingsModule;
 	private EnumSet<Task> tasks;
+	private String projectApps;
 
-	public CreateDjangoModuleSettings(PrintStream logger, String settingsModule, EnumSet<Task> actualTasks) {
+	public CreateDjangoModuleSettings(PrintStream logger, String settingsModule, EnumSet<Task> actualTasks, String projectApps) {
 		this.logger = logger;
 		this.settingsModule = settingsModule;
 		this.tasks = actualTasks;
+		this.projectApps = projectApps;
 	}
 
 	@Override
@@ -42,6 +44,12 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 			settingsWriter.println("from "+settingsModule+" import *");
 			settingsWriter.println("INSTALLED_APPS = ('django_extensions'," +
                   "'django_jenkins',) +INSTALLED_APPS");
+			String[] apps = projectApps.trim().replace(" ","").split(",");
+			settingsWriter.println("PROJECT_APPS = (");
+			for(String a: apps){
+				settingsWriter.println("'"+a+"'");
+			}
+			settingsWriter.println(",)");
 			settingsWriter.println("JENKINS_TASKS = (\n");
 			for (Task s: tasks) {
                   settingsWriter.println("'"+s.getPythonPackage()+"',");

@@ -24,7 +24,7 @@ import org.kohsuke.stapler.StaplerRequest;
 
 public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
 	public static final String DISPLAY_NAME = "Django Jenkins Builder";
 	public final static EnumSet<Task> DEFAULT_TASKS = EnumSet.of(Task.PEP8, Task.PYFLAKES);
 
@@ -108,6 +108,10 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 		return tasks;
 	}
 
+	public String getProjectApps() {
+		return projectApps;
+	}
+
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
 			BuildListener listener) throws InterruptedException, IOException {
@@ -122,7 +126,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 		try {
 			LOGGER.info("Calling venv.perform");
 			EnumSet<Task> actualTasks = ((tasks == null) || (tasks.size() == 0)) ? DEFAULT_TASKS: tasks;
-			status =  venv.perform(actualTasks);
+			status =  venv.perform(actualTasks, projectApps);
 		}
 		catch(Exception e) {
 			LOGGER.info("Something went wrong: "+e.getMessage());
