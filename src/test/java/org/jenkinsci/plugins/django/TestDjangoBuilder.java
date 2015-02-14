@@ -34,15 +34,16 @@ public class TestDjangoBuilder {
 
 	@Test
 	public void testRoundTrip() throws Exception {
-		DjangoJenkinsBuilder before = new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS);
+		String projectApps = "items";
+		DjangoJenkinsBuilder before = new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS, projectApps);
 		DjangoJenkinsBuilder after = jRule.configRoundtrip(before);
-		jRule.assertEqualBeans(before, after, "tasks");
+		jRule.assertEqualBeans(before, after, "tasks,projectApps");
 	}
 
     @Test
 	public void testPluginLoads() throws Exception {
         FreeStyleProject project = jRule.createFreeStyleProject();
-		djangoBuilder = new DjangoJenkinsBuilder(EnumSet.of(Task.PEP8));
+		djangoBuilder = new DjangoJenkinsBuilder(EnumSet.of(Task.PEP8), "items");
 		project.getBuildersList().add(djangoBuilder);
 		GitSCM scm = new GitSCM(DJANGO_TEST_PROJECT_GIT_URL);
 		project.setScm(scm);
