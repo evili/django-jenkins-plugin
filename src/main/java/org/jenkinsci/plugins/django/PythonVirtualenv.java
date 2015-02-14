@@ -66,7 +66,7 @@ public class PythonVirtualenv implements Serializable {
 		this.listener = listener;
 	}
 
-	public boolean perform(EnumSet<Task> actualTasks) throws InterruptedException,
+	public boolean perform(EnumSet<Task> actualTasks, String projectApps) throws InterruptedException,
 			IOException {
 
 		DjangoJenkinsBuilder.LOGGER.info("Perfroming "+actualTasks);
@@ -85,7 +85,7 @@ public class PythonVirtualenv implements Serializable {
 		commandList.add(installProjectRequirements());
 
 		DjangoJenkinsBuilder.LOGGER.info("Building jenkins package/module");
-		commandList.add(createBuildPackage(actualTasks));
+		commandList.add(createBuildPackage(actualTasks, projectApps));
 
 		DjangoJenkinsBuilder.LOGGER.info("Adding jenkins tasks");
 		commandList.add("$PYTHON_EXE manage.py jenkins");
@@ -121,7 +121,7 @@ public class PythonVirtualenv implements Serializable {
 		return "pip install -r "+requirementsFile;
 	}
 
-	private String createBuildPackage(EnumSet<Task> actualTasks) throws IOException,
+	private String createBuildPackage(EnumSet<Task> actualTasks, String projectApps) throws IOException,
 			InterruptedException {
 
 		FilePath djModule = new FilePath(build.getWorkspace(),
@@ -132,7 +132,7 @@ public class PythonVirtualenv implements Serializable {
 		DjangoJenkinsBuilder.LOGGER.info("Creating Build Package");
 		djModule.act(new CreateBuildPackage(logger));
 		DjangoJenkinsBuilder.LOGGER.info("Creating jenkins settings module");
-		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule, actualTasks));
+		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule, actualTasks, projectApps));
 		DjangoJenkinsBuilder.LOGGER.info("Returning settings: "+settingsModule);
 		return "export DJANGO_SETTINGS_MODULE="+DJANGO_JENKINS_MODULE+"."+DJANGO_JENKINS_SETTINGS;
 	}
