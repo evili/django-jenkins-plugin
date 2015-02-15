@@ -131,6 +131,11 @@ public class PythonVirtualenv implements Serializable {
 		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder(logger));
 		DjangoJenkinsBuilder.LOGGER.info("Creating Build Package");
 		djModule.act(new CreateBuildPackage(logger));
+
+		if ((projectApps==null) || (projectApps.trim().length()==0)) {
+			DjangoJenkinsBuilder.LOGGER.info("No project apps provided. Trying to find some");
+			projectApps = build.getWorkspace().act(new ProjectApplicationsFinder());
+		}
 		DjangoJenkinsBuilder.LOGGER.info("Creating jenkins settings module");
 		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule, actualTasks, projectApps));
 		DjangoJenkinsBuilder.LOGGER.info("Returning settings: "+settingsModule);
