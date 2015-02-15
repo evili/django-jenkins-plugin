@@ -28,7 +28,6 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 
 	@Override
 	public void checkRoles(RoleChecker checker) throws SecurityException {
-
 	}
 
 	@Override
@@ -47,9 +46,9 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 			String[] apps = projectApps.trim().replace(" ","").split(",");
 			settingsWriter.println("PROJECT_APPS = (");
 			for(String a: apps){
-				settingsWriter.println("'"+a+"'");
+				settingsWriter.println("'"+a+"',");
 			}
-			settingsWriter.println(",)");
+			settingsWriter.println(")");
 			settingsWriter.println("JENKINS_TASKS = (\n");
 			for (Task s: tasks) {
                   settingsWriter.println("'"+s.getPythonPackage()+"',");

@@ -41,7 +41,13 @@ public class CreateBuildPackage implements FileCallable<Void> {
 
 	}
 
+	public PrintStream getLogger() {
+		return logger;
+	}
+
 	@Override
 	public void checkRoles(RoleChecker checker) throws SecurityException {
-	}	
-}		
+		// TODO Auto-generated method stub
+
+	}
+}
