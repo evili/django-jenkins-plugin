@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.django;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertSame;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
@@ -22,11 +21,9 @@ public class TestCreateBuildPackage {
 	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock
-	private File mockFile;
+	private File file;
 	@Mock
-	private PrintStream mockLogger;
-	@Mock
-	private CreateBuildPackage mockBPackage;
+	private PrintStream logger;
 	@Mock
 	RoleChecker checker;
 	@Mock
@@ -34,23 +31,25 @@ public class TestCreateBuildPackage {
 	@Mock
 	private VirtualChannel channel;
 
-
+	private CreateBuildPackage bPackage;
 
 	@Before
 	public void setUp() throws IOException {
-		when(mockBPackage.getLogger()).thenReturn(mockLogger);
+		bPackage = new CreateBuildPackage(logger);
 	}
 
 	@Test
 	public void testCreateBuildPackage() throws Exception {
-		assertSame("Logger ", mockLogger, mockBPackage.getLogger());
+		assertSame("Logger ", logger, bPackage.getLogger());
 	}
+
 	@Test
 	public void testInvoke() throws Exception {
-		mockBPackage.invoke(invokeFile, channel);
+		bPackage.invoke(invokeFile, channel);
 	}
+
 	@Test
 	public void testCheckRoles() throws Exception {
-		mockBPackage.checkRoles(checker);
+		bPackage.checkRoles(checker);
 	}
 }

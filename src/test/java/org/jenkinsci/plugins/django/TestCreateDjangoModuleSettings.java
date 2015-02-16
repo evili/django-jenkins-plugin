@@ -19,8 +19,6 @@ public class TestCreateDjangoModuleSettings {
 	@Rule
 	public MockitoRule rule = MockitoJUnit.rule();
 	@Mock
-	private CreateDjangoModuleSettings mockCDMS;
-	@Mock
 	private PrintStream logger;
 	@Mock
 	private RoleChecker checker;
@@ -29,27 +27,30 @@ public class TestCreateDjangoModuleSettings {
 	@Mock
 	private VirtualChannel channel;
 
+	private CreateDjangoModuleSettings cdms;
+
+
 	@Before
 	public void setUp() throws Exception {
+		String projectApps = "items";
+		EnumSet<Task> actualTasks = EnumSet.allOf(Task.class);
+		String settingsModule = "items.settings";
+		cdms = new CreateDjangoModuleSettings(logger, settingsModule, actualTasks, projectApps);
 	}
 
 	@Test
 	public void testCreateDjangoModuleSettings() throws Exception {
-		String projectApps = "items";
-		EnumSet<Task> actualTasks = EnumSet.allOf(Task.class);
-		String settingsModule = "items.settings";
-		CreateDjangoModuleSettings cdms = new CreateDjangoModuleSettings(logger, settingsModule, actualTasks, projectApps);
 		assertSame(CreateDjangoModuleSettings.class, cdms.getClass());
 	}
 
 	@Test
 	public void testCheckRoles() throws Exception {
-		mockCDMS.checkRoles(checker);
+		cdms.checkRoles(checker);
 	}
 
 	@Test
 	public void testInvoke() throws Exception {
-		mockCDMS.invoke(file, channel);
+		cdms.invoke(file, channel);
 	}
 
 }

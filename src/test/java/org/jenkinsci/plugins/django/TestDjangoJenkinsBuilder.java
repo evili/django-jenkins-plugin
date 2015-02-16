@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 
-public class TestDjangoBuilder {
+public class TestDjangoJenkinsBuilder {
 	@Rule
 	public JenkinsRule jRule = new JenkinsRule();
 
