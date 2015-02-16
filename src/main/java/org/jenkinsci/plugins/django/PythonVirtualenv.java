@@ -37,34 +37,11 @@ public class PythonVirtualenv implements Serializable {
 
 	public PythonVirtualenv(AbstractBuild<?, ?> build, Launcher launcher,
 			BuildListener listener) {
-		this.setBuild(build);
-		this.setLauncher(launcher);
-		this.setListener(listener);
-	}
-
-	public AbstractBuild<?, ?> getBuild() {
-		return build;
-	}
-
-	public void setBuild(AbstractBuild<?, ?> build) {
 		this.build = build;
-	}
-
-	public Launcher getLauncher() {
-		return launcher;
-	}
-
-	public void setLauncher(Launcher launcher) {
 		this.launcher = launcher;
-	}
-
-	public BuildListener getListener() {
-		return listener;
-	}
-
-	public void setListener(BuildListener listener) {
 		this.listener = listener;
 	}
+
 
 	public boolean perform(EnumSet<Task> actualTasks, String projectApps) throws InterruptedException,
 			IOException {
