@@ -21,14 +21,14 @@ public class CreateBuildPackage implements FileCallable<Void> {
 	}
 
 	@Override
-	public Void invoke(File f, VirtualChannel channel) {
+	public Void invoke(File dir, VirtualChannel channel) {
 		File initFile;
 		PrintWriter initWriter;
 		logger.println("Creating " + PythonVirtualenv.DJANGO_JENKINS_MODULE);
 		try {
-			FileUtils.deleteDirectory(f);
-			f.mkdirs();
-			initFile = new File(f, "__init__.py");
+			FileUtils.deleteDirectory(dir);
+			dir.mkdirs();
+			initFile = new File(dir, "__init__.py");
 			initFile.createNewFile();
 			initWriter = new PrintWriter(initFile);
 			initWriter.println("#");
