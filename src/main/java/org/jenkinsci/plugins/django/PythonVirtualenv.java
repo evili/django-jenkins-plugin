@@ -49,8 +49,16 @@ public class PythonVirtualenv implements Serializable {
 		DjangoJenkinsBuilder.LOGGER.info("Perfroming "+actualTasks);
 
 		logger = listener.getLogger();
-		List<PythonInstallation> pInstalls = PythonInstallationFinder
-				.configure();
+		List<PythonInstallation> pInstalls;
+
+		try {
+			pInstalls = PythonInstallationFinder.configure();
+		}
+		catch(NullPointerException e){
+			logger.println("No Python Installations found: "+e.getMessage());
+			return false;
+		}
+
 		String pythonName = pInstalls.get(0).getName();
 
 		ArrayList<String> commandList = new ArrayList<String>();

@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.django;
 
-import hudson.FilePath.FileCallable;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
@@ -9,19 +8,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import jenkins.MasterToSlaveFileCallable;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.NotFileFilter;
 import org.eclipse.jgit.util.StringUtils;
-import org.jenkinsci.remoting.RoleChecker;
 
-public class ProjectApplicationsFinder implements FileCallable<String> {
+public class ProjectApplicationsFinder extends MasterToSlaveFileCallable<String> {
 
 	private static final long serialVersionUID = 1L;
-
-	@Override
-	public void checkRoles(RoleChecker checker) throws SecurityException {
-	}
 
 	@Override
 	public String invoke(File dir, VirtualChannel channel) throws IOException,

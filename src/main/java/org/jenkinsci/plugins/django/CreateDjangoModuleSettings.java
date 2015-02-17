@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.django;
 
-import hudson.FilePath.FileCallable;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
@@ -9,9 +8,9 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.EnumSet;
 
-import org.jenkinsci.remoting.RoleChecker;
+import jenkins.MasterToSlaveFileCallable;
 
-public class CreateDjangoModuleSettings implements FileCallable<Void> {
+public class CreateDjangoModuleSettings extends MasterToSlaveFileCallable<Void> {
 
 	private static final long serialVersionUID = 1L;
 	private PrintStream logger;
@@ -24,10 +23,6 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 		this.settingsModule = settingsModule;
 		this.tasks = actualTasks;
 		this.projectApps = projectApps;
-	}
-
-	@Override
-	public void checkRoles(RoleChecker checker) throws SecurityException {
 	}
 
 	@Override

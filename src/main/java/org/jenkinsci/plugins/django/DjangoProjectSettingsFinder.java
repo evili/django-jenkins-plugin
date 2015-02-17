@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.django;
 
-import hudson.FilePath.FileCallable;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
@@ -8,12 +7,13 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Iterator;
 
+import jenkins.MasterToSlaveFileCallable;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.NotFileFilter;
-import org.jenkinsci.remoting.RoleChecker;
 
-public class DjangoProjectSettingsFinder implements FileCallable<String> {
+public class DjangoProjectSettingsFinder extends MasterToSlaveFileCallable<String> {
 
 	private static final long serialVersionUID = 1L;
 	private static final String[] MODULE_CANDIDATES = { "test_settings",
@@ -23,10 +23,6 @@ public class DjangoProjectSettingsFinder implements FileCallable<String> {
 
 	public DjangoProjectSettingsFinder(PrintStream logger) {
 		this.logger = logger;
-	}
-
-	@Override
-	public void checkRoles(RoleChecker checker) throws SecurityException {
 	}
 
 	@Override
@@ -58,7 +54,7 @@ public class DjangoProjectSettingsFinder implements FileCallable<String> {
 			logger.println("No settings module!");
 			throw(new IOException("No settings module found"));
 		}
-		String pkgPath = dir.toURI().relativize(found.getParentFile().toURI()).toString(); 
+		String pkgPath = dir.toURI().relativize(found.getParentFile().toURI()).toString();
 		DjangoJenkinsBuilder.LOGGER.info("Pakage found: "+pkgPath);
 		String module =pkgPath.replace(File.separatorChar, '.')+foundCandidate;
 		DjangoJenkinsBuilder.LOGGER.info("Settings module is: "+module);

@@ -1,12 +1,16 @@
 package org.jenkinsci.plugins.django;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
+import java.io.PrintStream;
 import java.util.EnumSet;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +36,8 @@ public class TestPythonVirtualenv {
 
 	@Before
 	public void setUp() {
+		PrintStream log = new PrintStream(new NullOutputStream());
+		when(listener.getLogger()).thenReturn(log );
 		venv = new PythonVirtualenv(build, launcher, listener);
 	}
 
@@ -44,8 +50,6 @@ public class TestPythonVirtualenv {
 	public void testPerform() throws Exception {
 		String projectApps = "items";
 		EnumSet<Task> actualTasks = EnumSet.allOf(Task.class);
-		venv.perform(actualTasks, projectApps);
-		assertNotNull("We've got a null PythonVirtualenv", venv);
+		assertFalse(venv.perform(actualTasks, projectApps));
 	}
-
 }

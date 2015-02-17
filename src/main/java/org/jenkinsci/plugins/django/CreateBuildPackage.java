@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.django;
 
-import hudson.FilePath.FileCallable;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
@@ -8,10 +7,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import org.apache.commons.io.FileUtils;
-import org.jenkinsci.remoting.RoleChecker;
+import jenkins.MasterToSlaveFileCallable;
 
-public class CreateBuildPackage implements FileCallable<Void> {
+import org.apache.commons.io.FileUtils;
+
+public class CreateBuildPackage extends MasterToSlaveFileCallable<Void> {
 
 	private static final long serialVersionUID = 1L;
 	private PrintStream logger;
@@ -43,11 +43,5 @@ public class CreateBuildPackage implements FileCallable<Void> {
 
 	public PrintStream getLogger() {
 		return logger;
-	}
-
-	@Override
-	public void checkRoles(RoleChecker checker) throws SecurityException {
-		// TODO Auto-generated method stub
-
 	}
 }
