@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.jenkinsci.remoting.RoleChecker;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,17 +20,14 @@ public class TestCreateBuildPackage {
 	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock
-	private File file;
-	@Mock
 	private PrintStream logger;
-	@Mock
-	RoleChecker checker;
-	@Mock
-	File invokeFile;
+
 	@Mock
 	private VirtualChannel channel;
 
+	File invokeFile;
 	private CreateBuildPackage bPackage;
+
 
 	@Before
 	public void setUp() throws IOException {
@@ -45,11 +41,7 @@ public class TestCreateBuildPackage {
 
 	@Test
 	public void testInvoke() throws Exception {
+		invokeFile = new File(System.getProperty("java.io.tmpdir"));
 		bPackage.invoke(invokeFile, channel);
-	}
-
-	@Test
-	public void testCheckRoles() throws Exception {
-		bPackage.checkRoles(checker);
 	}
 }

@@ -1,18 +1,13 @@
 package org.jenkinsci.plugins.django;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertNotNull;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 
-import org.jenkinsci.remoting.Role;
-import org.jenkinsci.remoting.RoleChecker;
-import org.jenkinsci.remoting.RoleSensitive;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -25,15 +20,10 @@ public class TestProjectApplicationsFinder {
 	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock
-	private RoleChecker checker;
-	@Mock
 	private VirtualChannel channel;
-	@Mock
-	private File dir;
 
 	@Before
 	public void setUp() {
-		doThrow(new SecurityException()).when(checker).check(any(RoleSensitive.class), any(Role.class));
 		pAFinder = new ProjectApplicationsFinder();
 	}
 
@@ -43,18 +33,8 @@ public class TestProjectApplicationsFinder {
 	}
 
 	@Test
-	public void testCheckRoles() throws Exception {
-		try {
-			pAFinder.checkRoles(checker);
-			fail("checkRoles should fail here");
-		}
-		catch(SecurityException e) {
-			e.getMessage();
-		}
-	}
-
-	@Test
 	public void testInvoke() throws Exception {
+		File dir = new File(System.getProperty("java.io.tmpdir"));
 		pAFinder.invoke(dir, channel);
 	}
 }

@@ -9,7 +9,7 @@ public class TestTask {
 	@Test
 	public void testGetName() {
 		Task t = Task.PEP8;
-		assertEquals("PEP8 name should be PEP8!", t.getName());
+		assertEquals("PEP8 name should be PEP8!","PEP8", t.getName());
 	}
 
 	@Test

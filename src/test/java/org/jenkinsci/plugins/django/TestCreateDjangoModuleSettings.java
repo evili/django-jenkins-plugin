@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.EnumSet;
 
-import org.jenkinsci.remoting.RoleChecker;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,10 +19,6 @@ public class TestCreateDjangoModuleSettings {
 	public MockitoRule rule = MockitoJUnit.rule();
 	@Mock
 	private PrintStream logger;
-	@Mock
-	private RoleChecker checker;
-	@Mock
-	private File file;
 	@Mock
 	private VirtualChannel channel;
 
@@ -44,13 +39,8 @@ public class TestCreateDjangoModuleSettings {
 	}
 
 	@Test
-	public void testCheckRoles() throws Exception {
-		cdms.checkRoles(checker);
-	}
-
-	@Test
 	public void testInvoke() throws Exception {
+		File file = new File(System.getProperty("java.io.tmpdir"));
 		cdms.invoke(file, channel);
 	}
-
 }
