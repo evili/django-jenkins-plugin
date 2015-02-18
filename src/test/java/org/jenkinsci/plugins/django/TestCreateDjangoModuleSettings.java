@@ -45,5 +45,6 @@ public class TestCreateDjangoModuleSettings {
 	public void testInvoke() throws Exception {
 		File file = folder.newFolder();
 		assertTrue("Django Settings Module not created.",cdms.invoke(file, channel));
+		assertFalse("Django Settings Module should have failed",cdms.invoke(new File("/dev/null"), channel));
 	}
 }

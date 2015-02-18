@@ -48,7 +48,7 @@ public class CreateDjangoModuleSettings extends MasterToSlaveFileCallable<Boolea
 			}
             settingsWriter.println(  ")");
 			settingsWriter.close();
-		} catch(IOException e) {
+		} catch(Exception e) {
 			DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
 			return Boolean.FALSE;
 		}
