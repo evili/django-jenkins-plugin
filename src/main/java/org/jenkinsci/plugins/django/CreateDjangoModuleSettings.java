@@ -4,31 +4,29 @@ import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.EnumSet;
 
 import jenkins.MasterToSlaveFileCallable;
 
-public class CreateDjangoModuleSettings extends MasterToSlaveFileCallable<Void> {
+public class CreateDjangoModuleSettings extends MasterToSlaveFileCallable<Boolean> {
 
-	private static final long serialVersionUID = 1L;
-	private PrintStream logger;
+	private static final long serialVersionUID = 2L;
 	private String settingsModule;
 	private EnumSet<Task> tasks;
 	private String projectApps;
 
-	public CreateDjangoModuleSettings(PrintStream logger, String settingsModule, EnumSet<Task> actualTasks, String projectApps) {
-		this.logger = logger;
+	public CreateDjangoModuleSettings(String settingsModule, EnumSet<Task> actualTasks, String projectApps) {
+
 		this.settingsModule = settingsModule;
 		this.tasks = actualTasks;
 		this.projectApps = projectApps;
 	}
 
 	@Override
-	public Void invoke(File f, VirtualChannel channel) throws IOException,
+	public Boolean invoke(File f, VirtualChannel channel) throws IOException,
 			InterruptedException {
-		logger.println("Creating special djano-jenkins settings file");
+		DjangoJenkinsBuilder.LOGGER.info("Creating special djano-jenkins settings file");
 		File settingsFile;
 		PrintWriter settingsWriter;
 		try {
@@ -51,9 +49,10 @@ public class CreateDjangoModuleSettings extends MasterToSlaveFileCallable<Void> 
             settingsWriter.println(  ")");
 			settingsWriter.close();
 		} catch(IOException e) {
-			logger.println(e.getMessage());
+			DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
+			return Boolean.FALSE;
 		}
-		return null;
+		return Boolean.TRUE;
 	}
 
 }

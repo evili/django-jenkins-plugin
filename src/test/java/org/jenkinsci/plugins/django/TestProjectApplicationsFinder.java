@@ -8,6 +8,7 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -15,6 +16,9 @@ import org.mockito.junit.MockitoRule;
 public class TestProjectApplicationsFinder {
 
 	private ProjectApplicationsFinder pAFinder;
+
+	@Rule
+	public TemporaryFolder folder = new TemporaryFolder();
 
 	@Rule
 	public MockitoRule rule = MockitoJUnit.rule();
@@ -34,7 +38,7 @@ public class TestProjectApplicationsFinder {
 
 	@Test
 	public void testInvoke() throws Exception {
-		File dir = new File(System.getProperty("java.io.tmpdir"));
+		File dir = folder.newFolder();
 		pAFinder.invoke(dir, channel);
 	}
 }

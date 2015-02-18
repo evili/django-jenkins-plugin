@@ -6,7 +6,6 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -33,8 +32,6 @@ public class PythonVirtualenv implements Serializable {
 	private Launcher launcher;
 	private BuildListener listener;
 
-	private PrintStream logger;
-
 	public PythonVirtualenv(AbstractBuild<?, ?> build, Launcher launcher,
 			BuildListener listener) {
 		this.build = build;
@@ -47,15 +44,13 @@ public class PythonVirtualenv implements Serializable {
 			IOException {
 
 		DjangoJenkinsBuilder.LOGGER.info("Perfroming "+actualTasks);
-
-		logger = listener.getLogger();
 		List<PythonInstallation> pInstalls;
 
 		try {
 			pInstalls = PythonInstallationFinder.configure();
 		}
 		catch(NullPointerException e){
-			logger.println("No Python Installations found: "+e.getMessage());
+			DjangoJenkinsBuilder.LOGGER.info("No Python Installations found: "+e.getMessage());
 			return false;
 		}
 
@@ -78,10 +73,10 @@ public class PythonVirtualenv implements Serializable {
 		String command = StringUtils.join(commandList, "\n");
 		DjangoJenkinsBuilder.LOGGER.info("Command:\n"+command);
 
-		logger.println("Final Command: ");
-		logger.println(EQUAL_LINE);
-		logger.println(command);
-		logger.println(EQUAL_LINE);
+		DjangoJenkinsBuilder.LOGGER.info("Final Command: ");
+		DjangoJenkinsBuilder.LOGGER.info(EQUAL_LINE);
+		DjangoJenkinsBuilder.LOGGER.info(command);
+		DjangoJenkinsBuilder.LOGGER.info(EQUAL_LINE);
 		DjangoJenkinsBuilder.LOGGER.info("Creating VirtualnevBuilder");
 		VirtualenvBuilder venv = new VirtualenvBuilder(pythonName,
 				"django-jenkins", false, false, "Shell", command.toString(),
@@ -97,11 +92,11 @@ public class PythonVirtualenv implements Serializable {
 	private String installProjectRequirements() throws InterruptedException {
 		String requirementsFile = "# No project requirements found";
 		try {
-			requirementsFile = build.getWorkspace().act(new ProjectRequirementsFinder(logger));
+			requirementsFile = build.getWorkspace().act(new ProjectRequirementsFinder());
 		}
 		catch(IOException e) {
-			logger.println("No requirements file found:");
-			logger.println(e.getMessage());
+			DjangoJenkinsBuilder.LOGGER.info("No requirements file found:");
+			DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
 		}
 		return "pip install -r "+requirementsFile;
 	}
@@ -113,16 +108,23 @@ public class PythonVirtualenv implements Serializable {
 				DJANGO_JENKINS_MODULE);
 		DjangoJenkinsBuilder.LOGGER.info("Finding Django project settings");
 
-		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder(logger));
+		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder());
+
 		DjangoJenkinsBuilder.LOGGER.info("Creating Build Package");
-		djModule.act(new CreateBuildPackage(logger));
+		if(!djModule.act(new CreateBuildPackage())) {
+			throw new IOException("Could not create Build Package.");
+		}
 
 		if ((projectApps==null) || (projectApps.trim().length()==0)) {
 			DjangoJenkinsBuilder.LOGGER.info("No project apps provided. Trying to find some");
 			projectApps = build.getWorkspace().act(new ProjectApplicationsFinder());
 		}
+
 		DjangoJenkinsBuilder.LOGGER.info("Creating jenkins settings module");
-		djModule.act(new CreateDjangoModuleSettings(logger, settingsModule, actualTasks, projectApps));
+		if(!djModule.act(new CreateDjangoModuleSettings(settingsModule, actualTasks, projectApps))) {
+			throw new IOException("Could not create jenkins setting module.");
+		}
+
 		DjangoJenkinsBuilder.LOGGER.info("Returning settings: "+settingsModule);
 		return "export DJANGO_SETTINGS_MODULE="+DJANGO_JENKINS_MODULE+"."+DJANGO_JENKINS_SETTINGS;
 	}

@@ -6,6 +6,7 @@ import org.junit.Test;
 
 public class TestTask {
 	private static final String PYFLAKES_PACKAGE = "django_jenkins.tasks.run_pyflakes";
+
 	@Test
 	public void testGetName() {
 		Task t = Task.PEP8;
