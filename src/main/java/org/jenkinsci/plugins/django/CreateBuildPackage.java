@@ -3,7 +3,6 @@ package org.jenkinsci.plugins.django;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import jenkins.MasterToSlaveFileCallable;
@@ -30,7 +29,7 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
 			initWriter = new PrintWriter(initFile);
 			initWriter.println("#");
 			initWriter.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
 			return Boolean.FALSE;
 		}

@@ -1,6 +1,8 @@
 package org.jenkinsci.plugins.django;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
@@ -41,6 +43,8 @@ public class TestCreateBuildPackage {
 	@Test
 	public void testInvoke() throws Exception {
 		File invokeFile = folder.newFolder();
-		assertTrue("Path should be in /tmp", bPackage.invoke(invokeFile, channel));
+		assertTrue("Real path should build package", bPackage.invoke(invokeFile, channel));
+		folder.delete();
+		assertFalse("Null path should fail", bPackage.invoke(new File("/dev/null"), channel));
 	}
 }
