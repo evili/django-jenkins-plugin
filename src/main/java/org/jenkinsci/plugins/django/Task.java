@@ -1,6 +1,10 @@
 
 package org.jenkinsci.plugins.django;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
 public enum Task {
 	PEP8      ("PEP8",      "django_jenkins.tasks.run_pep8"),
 	PYLINT    ("PYLINT",    "django_jenkins.tasks.run_pylint"),
@@ -25,5 +29,18 @@ public enum Task {
 	}
 	public String toString() {
 		return name;
+	}
+
+	private static Map<String, Task> taskMap;
+
+	static {
+		taskMap = new HashMap<String, Task>();
+		for(Task t: EnumSet.allOf(Task.class)) {
+			taskMap.put(t.getName(), t);
+		}
+	}
+
+	public static Task getTask(String name) {
+		return taskMap.get(name);
 	}
 }
