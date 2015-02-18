@@ -17,7 +17,8 @@
   <packaging>hpi</packaging>
 
   <name>Django Plugin</name>
-  <description>Django</description>
+  <description>Plugin to build unmodified Django projects under Jenkins
+  and django-jenkins Python package</description>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Django+Plugin</url>
   <licenses>
 	<license>

@@ -23,7 +23,7 @@ public class PythonVirtualenv implements Serializable {
 
 	private static final String EQUAL_LINE = StringUtils.repeat("=", 72);
 	static final String DJANGO_JENKINS_REQUIREMENTS = "nosexcover pep8 pyflakes flake8 "
-			+ "coverage django-extensions django-jenkins";
+			+ "coverage django-extensions django-jenkins selenium";
 
 	static final String DJANGO_JENKINS_MODULE = "jenkins_build";
 	static final String DJANGO_JENKINS_SETTINGS = "jenkins_settings";

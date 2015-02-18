@@ -1,6 +1,6 @@
 package org.jenkinsci.plugins.django;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
@@ -38,7 +38,10 @@ public class TestProjectApplicationsFinder {
 
 	@Test
 	public void testInvoke() throws Exception {
-		File dir = folder.newFolder();
-		pAFinder.invoke(dir, channel);
+		String appName = "appwithviews";
+		File dir = folder.newFolder(appName);
+		folder.newFile(appName+File.separator+"views.py");
+		String found = pAFinder.invoke(dir, channel);
+		assertEquals("We should find the testapp.", appName, found);
 	}
 }
