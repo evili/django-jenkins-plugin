@@ -12,6 +12,7 @@ import hudson.tasks.Builder;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,23 +61,37 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
 	@Extension
 	public static final class DescriptorImpl
-        extends BuildStepDescriptor<Builder> {
+	extends BuildStepDescriptor<Builder> {
 		private EnumSet<Task> defaultTasks = DjangoJenkinsBuilder.DEFAULT_TASKS;
 
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject json)
 				throws FormException {
 			LOGGER.info("In configure:");
-			LOGGER.info(json.toString(2));
-
-			//TODO: Obtain default tasks from the JSON object
+			LOGGER.info("JSON: "+json.toString(2));
+			try {
+				JSONObject newJSONDefaults = json.getJSONObject("defaultTasks");
+				Iterator<?> it = newJSONDefaults.keys();
+				EnumSet<Task> newDefaults = EnumSet.noneOf(Task.class);
+				while(it.hasNext()) {
+					String task = (String) it.next();
+					boolean checked = newJSONDefaults.getBoolean(task);
+					if(checked) {
+						newDefaults.add(Task.getTask(task));
+					}
+				}
+				defaultTasks = newDefaults;
+			}
+			catch (Exception e){
+				LOGGER.info("Could not configure Builder: "+e.getMessage());
+			}
 			LOGGER.info("Saving...");
 			save();
 			LOGGER.info("Returning super.configure");
 			return super.configure(req, json);
 		}
 
-		public EnumSet<Task> getDefaultTasks() {
+		public EnumSet<Task> getDefaultTasks() throws Exception {
 			LOGGER.info("Returning default tasks: "+defaultTasks);
 			return defaultTasks;
 		}
