@@ -1,15 +1,15 @@
 package org.jenkinsci.plugins.django;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -17,31 +17,30 @@ import org.mockito.junit.MockitoRule;
 public class TestCreateBuildPackage {
 
 	@Rule
-	public MockitoRule rule = MockitoJUnit.rule();
+	public TemporaryFolder folder = new TemporaryFolder();
 
-	@Mock
-	private PrintStream logger;
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock
 	private VirtualChannel channel;
 
-	File invokeFile;
 	private CreateBuildPackage bPackage;
 
 
 	@Before
 	public void setUp() throws IOException {
-		bPackage = new CreateBuildPackage(logger);
+		bPackage = new CreateBuildPackage();
 	}
 
 	@Test
 	public void testCreateBuildPackage() throws Exception {
-		assertSame("Logger ", logger, bPackage.getLogger());
+		assertNotNull("CreateBuildPackage should not be null.", bPackage);
 	}
 
 	@Test
 	public void testInvoke() throws Exception {
-		invokeFile = new File(System.getProperty("java.io.tmpdir"));
-		bPackage.invoke(invokeFile, channel);
+		File invokeFile = folder.newFolder();
+		assertTrue("Path should be in /tmp", bPackage.invoke(invokeFile, channel));
 	}
 }
