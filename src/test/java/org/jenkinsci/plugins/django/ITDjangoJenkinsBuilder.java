@@ -35,6 +35,6 @@ public class ITDjangoJenkinsBuilder {
 		String s = FileUtils.readFileToString(build.getLogFile());
 		String[] lines = StringUtils.split(s, "\n\r");
 		String lastL = lines[lines.length-1];
-		assertTrue("Test Project Build should be successful:"+lastL, lastL.contains("Finished: SUCCESS"));
+		assertTrue("Test Project Build should be successful: ==> "+lastL+" <==", lastL.contains("Finished: SUCCESS"));
 	}
 }
