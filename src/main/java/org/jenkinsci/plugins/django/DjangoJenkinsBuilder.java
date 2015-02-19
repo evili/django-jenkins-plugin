@@ -10,6 +10,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -25,16 +26,25 @@ import org.kohsuke.stapler.StaplerRequest;
 
 public class DjangoJenkinsBuilder extends Builder implements Serializable {
 
-	private static final long serialVersionUID = 3L;
+	private static final long serialVersionUID = 4L;
 	public static final String DISPLAY_NAME = "Django Jenkins Builder";
-	public final static EnumSet<Task> DEFAULT_TASKS = EnumSet.of(Task.PEP8, Task.PYFLAKES);
+	public final static EnumSet<Task> DEFAULT_TASKS = EnumSet.noneOf(Task.class);
 
 	final static Logger LOGGER = Logger.getLogger(DjangoJenkinsBuilder.class.getName());
 
 	private final EnumSet<Task> tasks;
 	private String projectApps;
+	private boolean enableCoverage;
 
 	static {
+		/*
+		 * By default, add any django-jenkins tasks that only
+		 * depends on python-pip packages.
+		 */
+		for(Task t: EnumSet.allOf(Task.class)) {
+			if(t.getRequirements() != null)
+				DEFAULT_TASKS.add(t);
+		}
 		FileHandler h;
 		SimpleFormatter f = new SimpleFormatter();
 		try {
@@ -111,11 +121,12 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 	}
 
 	@DataBoundConstructor
-	public DjangoJenkinsBuilder(EnumSet<Task> tasks, String projectApps) {
+	public DjangoJenkinsBuilder(EnumSet<Task> tasks, String projectApps, boolean enableCoverage) {
 		LOGGER.info("In Constructor");
 		//this.tasks = noTasks;
 		this.tasks = tasks;
 		this.projectApps = projectApps;
+		this.enableCoverage = enableCoverage;
 	}
 
 	public EnumSet<Task> getTasks() {
@@ -127,30 +138,35 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
 		return projectApps;
 	}
 
+	public boolean isEnableCoverage() {
+		return enableCoverage;
+	}
+
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
 			BuildListener listener) throws InterruptedException, IOException {
 
-		LOGGER.info("Performing build");
-		listener.getLogger().println("Calling seyUpVirtualenv");
+		PrintStream logger = listener.getLogger();
+
+		logger.println("Performing Django-Jenkins build");
 
 		boolean status = false;
 
 		PythonVirtualenv venv = new PythonVirtualenv(build, launcher, listener);
 
 		try {
-			LOGGER.info("Calling venv.perform");
+			logger.println("Calling VirtualEnv Builder");
 			EnumSet<Task> actualTasks = ((tasks == null) || (tasks.size() == 0)) ? DEFAULT_TASKS: tasks;
-			status =  venv.perform(actualTasks, projectApps);
+			status =  venv.perform(actualTasks, projectApps, enableCoverage);
 		}
 		catch(Exception e) {
-			LOGGER.info("Something went wrong: "+e.getMessage());
+			logger.println("Something went wrong: "+e.getMessage());
 			status = false;
 		}
 		if(status)
-			LOGGER.info("Success");
+			logger.println("Success");
 		else
-			LOGGER.info("Build failed <:-( ");
+			logger.println("Build failed <:-( ");
 		return status;
 	}
 }
