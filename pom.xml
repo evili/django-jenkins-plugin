@@ -79,6 +79,17 @@
 		<artifactId>maven-site-plugin</artifactId>
         <version>3.3</version><!--$NO-MVN-MAN-VER$-->
       </plugin>
+      <plugin>
+        <groupId>external.atlassian.jgitflow</groupId>
+        <artifactId>jgitflow-maven-plugin</artifactId>
+        <version>1.0-m4.3</version>
+        <configuration>
+          <flowInitContext>
+            <developBranchName>development</developBranchName>
+          </flowInitContext>
+          <!-- see goals wiki page for configuration options -->
+        </configuration>
+      </plugin>
 	</plugins>
   </build>
   <reporting>
