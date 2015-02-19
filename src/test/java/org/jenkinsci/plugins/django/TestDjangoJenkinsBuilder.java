@@ -1,9 +1,7 @@
 package org.jenkinsci.plugins.django;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import hudson.Plugin;
 
 import java.util.EnumSet;
@@ -27,7 +25,7 @@ public class TestDjangoJenkinsBuilder {
 
 	private String projectApps;
     private boolean enableCoverage;
-    
+
 	@Mock
 	private StaplerRequest staplerRequest;
 
@@ -54,10 +52,21 @@ public class TestDjangoJenkinsBuilder {
 	}
 
 	@Test
+	public void testDisableCoverage() throws Exception {
+		enableCoverage = false;
+		assertFalse("Builder should have coverage disabled", getBuilder().isEnableCoverage());
+	}
+
+	@Test
 	public void testRoundTrip() throws Exception {
 		DjangoJenkinsBuilder before = getBuilder();
 		DjangoJenkinsBuilder after = jRule.configRoundtrip(before);
 		jRule.assertEqualBeans(before, after, "tasks,projectApps,enableCoverage");
+		enableCoverage = false;
+		before = getBuilder();
+		after = jRule.configRoundtrip(before);
+		jRule.assertEqualBeans(before, after, "tasks,projectApps,enableCoverage");
+
 	}
 
 	@Test

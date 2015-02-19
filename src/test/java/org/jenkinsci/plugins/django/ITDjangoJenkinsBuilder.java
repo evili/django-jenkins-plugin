@@ -25,7 +25,7 @@ public class ITDjangoJenkinsBuilder {
 	@Test
 	public void testPluginLoads() throws Exception {
         FreeStyleProject project = jRule.createFreeStyleProject();
-		DjangoJenkinsBuilder djangoBuilder = new DjangoJenkinsBuilder(EnumSet.of(Task.PEP8), "items");
+		DjangoJenkinsBuilder djangoBuilder = new DjangoJenkinsBuilder(EnumSet.of(Task.PEP8), "items", true);
 		project.getBuildersList().add(djangoBuilder);
 		GitSCM scm = new GitSCM(DJANGO_TEST_PROJECT_GIT_URL);
 		project.setScm(scm);

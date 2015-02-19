@@ -6,6 +6,7 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -19,18 +20,20 @@ import org.apache.commons.lang.StringUtils;
 
 public class PythonVirtualenv implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
-	private static final String EQUAL_LINE = StringUtils.repeat("=", 72);
-	static final String DJANGO_JENKINS_REQUIREMENTS = "nosexcover pep8 pyflakes flake8 "
-			+ "coverage django-extensions django-jenkins selenium";
+	static final String DJANGO_JENKINS_REQUIREMENTS = "nosexcover django-extensions django-jenkins selenium";
 
 	static final String DJANGO_JENKINS_MODULE = "jenkins_build";
 	static final String DJANGO_JENKINS_SETTINGS = "jenkins_settings";
 
+	private static final String ENABLE_COVERAGE = "--enable-coverage";
+	private static final String COVERAGE_REQUIREMENT = "coverage";
+
 	private AbstractBuild<?, ?> build;
 	private Launcher launcher;
 	private BuildListener listener;
+	private PrintStream logger;
 
 	public PythonVirtualenv(AbstractBuild<?, ?> build, Launcher launcher,
 			BuildListener listener) {
@@ -40,17 +43,18 @@ public class PythonVirtualenv implements Serializable {
 	}
 
 
-	public boolean perform(EnumSet<Task> actualTasks, String projectApps) throws InterruptedException,
+	public boolean perform(EnumSet<Task> actualTasks, String projectApps, boolean enableCoverage) throws InterruptedException,
 			IOException {
+		logger = listener.getLogger();
 
-		DjangoJenkinsBuilder.LOGGER.info("Perfroming "+actualTasks);
+		logger.println("Perfroming "+actualTasks);
 		List<PythonInstallation> pInstalls;
 
 		try {
 			pInstalls = PythonInstallationFinder.configure();
 		}
 		catch(NullPointerException e){
-			DjangoJenkinsBuilder.LOGGER.info("No Python Installations found: "+e.getMessage());
+			logger.println("No Python Installations found: "+e.getMessage());
 			return false;
 		}
 
@@ -58,35 +62,42 @@ public class PythonVirtualenv implements Serializable {
 
 		ArrayList<String> commandList = new ArrayList<String>();
 
-		DjangoJenkinsBuilder.LOGGER.info("Installing Django Requirements");
-		commandList.add(installDjangoJenkinsRequirements());
+		logger.println("Installing Django Requirements");
+		commandList.add(installDjangoJenkinsRequirements(actualTasks, enableCoverage));
 
-		DjangoJenkinsBuilder.LOGGER.info("Installing Project Requirements");
+		logger.println("Installing Project Requirements");
 		commandList.add(installProjectRequirements());
 
-		DjangoJenkinsBuilder.LOGGER.info("Building jenkins package/module");
+		logger.println("Building jenkins package/module");
 		commandList.add(createBuildPackage(actualTasks, projectApps));
 
-		DjangoJenkinsBuilder.LOGGER.info("Adding jenkins tasks");
-		commandList.add("$PYTHON_EXE manage.py jenkins");
+		logger.println("Adding jenkins tasks");
+		commandList.add("$PYTHON_EXE manage.py jenkins"+(enableCoverage ? " "+ENABLE_COVERAGE : "" ));
 
 		String command = StringUtils.join(commandList, "\n");
-		DjangoJenkinsBuilder.LOGGER.info("Command:\n"+command);
+		logger.println("Command:\n"+command);
 
-		DjangoJenkinsBuilder.LOGGER.info("Final Command: ");
-		DjangoJenkinsBuilder.LOGGER.info(EQUAL_LINE);
-		DjangoJenkinsBuilder.LOGGER.info(command);
-		DjangoJenkinsBuilder.LOGGER.info(EQUAL_LINE);
-		DjangoJenkinsBuilder.LOGGER.info("Creating VirtualnevBuilder");
+		logger.println("Final Command: ");
+		logger.println(command);
+
+		logger.println("Creating VirtualnevBuilder");
 		VirtualenvBuilder venv = new VirtualenvBuilder(pythonName,
 				"django-jenkins", false, false, "Shell", command.toString(),
 				false);
-		DjangoJenkinsBuilder.LOGGER.info("Performing in VirtualenvBuilder");
+		logger.println("Performing in VirtualenvBuilder");
 		return venv.perform(build, launcher, listener);
 	}
 
-	private String installDjangoJenkinsRequirements() {
-		return "pip install " + DJANGO_JENKINS_REQUIREMENTS;
+	private String installDjangoJenkinsRequirements(EnumSet<Task> actualTasks, boolean enableCoverage) {
+		String pip = "pip install "+DJANGO_JENKINS_REQUIREMENTS+
+				(enableCoverage ? " "+COVERAGE_REQUIREMENT : "");
+		for(Task t: actualTasks) {
+			if(t.getRequirements() != null)
+				pip += " "+t.getRequirements();
+			else
+				logger.println("WARINING: Task "+t.getName()+" has non-python requirements.");
+		}
+		return pip;
 	}
 
 	private String installProjectRequirements() throws InterruptedException {
@@ -95,8 +106,8 @@ public class PythonVirtualenv implements Serializable {
 			requirementsFile = build.getWorkspace().act(new ProjectRequirementsFinder());
 		}
 		catch(IOException e) {
-			DjangoJenkinsBuilder.LOGGER.info("No requirements file found:");
-			DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
+			logger.println("No requirements file found:");
+			logger.println(e.getMessage());
 		}
 		return "pip install -r "+requirementsFile;
 	}
@@ -106,26 +117,26 @@ public class PythonVirtualenv implements Serializable {
 
 		FilePath djModule = new FilePath(build.getWorkspace(),
 				DJANGO_JENKINS_MODULE);
-		DjangoJenkinsBuilder.LOGGER.info("Finding Django project settings");
+		logger.println("Finding Django project settings");
 
 		String settingsModule = build.getWorkspace().act(new DjangoProjectSettingsFinder());
 
-		DjangoJenkinsBuilder.LOGGER.info("Creating Build Package");
+		logger.println("Creating Build Package");
 		if(!djModule.act(new CreateBuildPackage())) {
 			throw new IOException("Could not create Build Package.");
 		}
 
 		if ((projectApps==null) || (projectApps.trim().length()==0)) {
-			DjangoJenkinsBuilder.LOGGER.info("No project apps provided. Trying to find some");
+			logger.println("No project apps provided. Trying to find some");
 			projectApps = build.getWorkspace().act(new ProjectApplicationsFinder());
 		}
 
-		DjangoJenkinsBuilder.LOGGER.info("Creating jenkins settings module");
+		logger.println("Creating jenkins settings module");
 		if(!djModule.act(new CreateDjangoModuleSettings(settingsModule, actualTasks, projectApps))) {
 			throw new IOException("Could not create jenkins setting module.");
 		}
 
-		DjangoJenkinsBuilder.LOGGER.info("Returning settings: "+settingsModule);
+		logger.println("Returning settings: "+settingsModule);
 		return "export DJANGO_SETTINGS_MODULE="+DJANGO_JENKINS_MODULE+"."+DJANGO_JENKINS_SETTINGS;
 	}
 }
