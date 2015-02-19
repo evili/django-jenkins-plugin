@@ -44,7 +44,7 @@ public class TestDjangoJenkinsBuilder {
 	@Before
 	public void setUp() {
 		projectApps = "items";
-        enableCoverage = True;
+        enableCoverage = true;
 	}
 
 	@Test
