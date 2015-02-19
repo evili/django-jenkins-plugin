@@ -26,12 +26,13 @@ public class TestDjangoJenkinsBuilder {
 	public JenkinsRule jRule = new JenkinsRule();
 
 	private String projectApps;
-
+    private boolean enableCoverage;
+    
 	@Mock
 	private StaplerRequest staplerRequest;
 
 	public DjangoJenkinsBuilder getBuilder() {
-		return new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS, projectApps);
+		return new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS, projectApps, enableCoverage);
 	}
 
 	public void checkDefaultTasks(DjangoJenkinsBuilder builder, EnumSet<Task> defaults) throws Exception {
@@ -43,6 +44,7 @@ public class TestDjangoJenkinsBuilder {
 	@Before
 	public void setUp() {
 		projectApps = "items";
+        enableCoverage = True;
 	}
 
 	@Test
@@ -55,7 +57,7 @@ public class TestDjangoJenkinsBuilder {
 	public void testRoundTrip() throws Exception {
 		DjangoJenkinsBuilder before = getBuilder();
 		DjangoJenkinsBuilder after = jRule.configRoundtrip(before);
-		jRule.assertEqualBeans(before, after, "tasks,projectApps");
+		jRule.assertEqualBeans(before, after, "tasks,projectApps,enableCoverage");
 	}
 
 	@Test
