@@ -4,7 +4,7 @@
 Django Jenkins Plugin tests [Django](https://www.djangoproject.com/)
 projects with the help of the
 [django-jenkins](https://pypi.python.org/pypi/django-jenkins/)
-package. This plugin is able to run all the tests provided by
+Python package. This plugin is able to run all the tests provided by
 django-jenkins with a pristine copy of any Django project. There is no
 need to include 'django\_jenkins' in INSTALLED\_APPS, no dependencies to
 add into requirements file...

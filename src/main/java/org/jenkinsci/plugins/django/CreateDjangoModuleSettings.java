@@ -1,35 +1,32 @@
 package org.jenkinsci.plugins.django;
 
-import hudson.FilePath.FileCallable;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.EnumSet;
 
-import org.jenkinsci.remoting.RoleChecker;
+import jenkins.MasterToSlaveFileCallable;
 
-public class CreateDjangoModuleSettings implements FileCallable<Void> {
+public class CreateDjangoModuleSettings extends MasterToSlaveFileCallable<Boolean> {
 
-	private static final long serialVersionUID = 1L;
-	private PrintStream logger;
+	private static final long serialVersionUID = 2L;
 	private String settingsModule;
+	private EnumSet<Task> tasks;
+	private String projectApps;
 
-	public CreateDjangoModuleSettings(PrintStream logger, String settingsModule) {
-		this.logger = logger;
+	public CreateDjangoModuleSettings(String settingsModule, EnumSet<Task> actualTasks, String projectApps) {
+
 		this.settingsModule = settingsModule;
+		this.tasks = actualTasks;
+		this.projectApps = projectApps;
 	}
 
 	@Override
-	public void checkRoles(RoleChecker checker) throws SecurityException {
-
-	}
-
-	@Override
-	public Void invoke(File f, VirtualChannel channel) throws IOException,
+	public Boolean invoke(File f, VirtualChannel channel) throws IOException,
 			InterruptedException {
-		logger.println("Creating special djano-jenkins settings file");
+		DjangoJenkinsBuilder.LOGGER.info("Creating special djano-jenkins settings file");
 		File settingsFile;
 		PrintWriter settingsWriter;
 		try {
@@ -39,15 +36,23 @@ public class CreateDjangoModuleSettings implements FileCallable<Void> {
 			settingsWriter.println("from "+settingsModule+" import *");
 			settingsWriter.println("INSTALLED_APPS = ('django_extensions'," +
                   "'django_jenkins',) +INSTALLED_APPS");
-			settingsWriter.println("JENKINS_TASKS = (\n"+
-                  "'django_jenkins.tasks.run_pep8',"+
-                  ")");
+			String[] apps = projectApps.trim().replace(" ","").split(",");
+			settingsWriter.println("PROJECT_APPS = (");
+			for(String a: apps){
+				settingsWriter.println("'"+a+"',");
+			}
+			settingsWriter.println(")");
+			settingsWriter.println("JENKINS_TASKS = (\n");
+			for (Task s: tasks) {
+                  settingsWriter.println("'"+s.getPythonPackage()+"',");
+			}
+            settingsWriter.println(  ")");
 			settingsWriter.close();
-			
-		} catch(IOException e) {
-			logger.println(e.getMessage());
+		} catch(Exception e) {
+			DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
+			return Boolean.FALSE;
 		}
-		return null;
+		return Boolean.TRUE;
 	}
 
 }

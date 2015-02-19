@@ -1,47 +1,40 @@
 package org.jenkinsci.plugins.django;
 
-import hudson.FilePath.FileCallable;
 import hudson.remoting.VirtualChannel;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
+import jenkins.MasterToSlaveFileCallable;
+
 import org.apache.commons.io.FileUtils;
-import org.jenkinsci.remoting.RoleChecker;
 
-public class CreateBuildPackage implements FileCallable<Void> {
+public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
 
-	private static final long serialVersionUID = 1L;
-	private PrintStream logger;
+	private static final long serialVersionUID = 2L;
 
-	public CreateBuildPackage(PrintStream logger) {
-		this.logger = logger;
+	public CreateBuildPackage() {
 	}
 
 	@Override
-	public Void invoke(File f, VirtualChannel channel) {
+	public Boolean invoke(File dir, VirtualChannel channel) {
 		File initFile;
 		PrintWriter initWriter;
-		logger.println("Creating " + PythonVirtualenv.DJANGO_JENKINS_MODULE);
+		DjangoJenkinsBuilder.LOGGER.info("Creating " + PythonVirtualenv.DJANGO_JENKINS_MODULE);
 		try {
-			FileUtils.deleteDirectory(f);
-			f.mkdirs();
-			initFile = new File(f, "__init__.py");
+			FileUtils.deleteDirectory(dir);
+			dir.mkdirs();
+			initFile = new File(dir, "__init__.py");
 			initFile.createNewFile();
 			initWriter = new PrintWriter(initFile);
 			initWriter.println("#");
 			initWriter.close();
-		} catch (IOException e) {
-			logger.println(e.getMessage());
+		} catch (Exception e) {
+			DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
+			return Boolean.FALSE;
 		}
 
-		return null;
+		return Boolean.TRUE;
 
 	}
-
-	@Override
-	public void checkRoles(RoleChecker checker) throws SecurityException {
-	}	
-}		
+}

@@ -1,65 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.jenkins-ci.plugins</groupId>
-    <artifactId>plugin</artifactId>
-    <!-- Baseline Jenkins version you use to build and test the plugin. Users must have this version or newer to run. -->
-    <version>1.580.1</version>
-    <relativePath/>
+	<groupId>org.jenkins-ci.plugins</groupId>
+	<artifactId>plugin</artifactId>
+	<!-- Baseline Jenkins version you use to build and test the plugin. Users
+		 must have this version or newer to run. -->
+	<version>1.587</version>
+	<relativePath />
   </parent>
   <groupId>org.jenkins-ci.plugins</groupId>
   <artifactId>django</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <packaging>hpi</packaging>
 
   <name>Django Plugin</name>
-  <description>Django</description>
+  <description>Plugin to build unmodified Django projects under Jenkins
+  and django-jenkins Python package</description>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Django+Plugin</url>
   <licenses>
-    <license>
-      <name>MIT License</name>
-      <url>http://opensource.org/licenses/MIT</url>
-    </license>
+	<license>
+	  <name>MIT License</name>
+	  <url>http://opensource.org/licenses/MIT</url>
+	</license>
   </licenses>
   <developers>
-    <developer>
-      <id>evili</id>
-      <name>Evili del Rio</name>
-      <email>evili.del.rio@gmail.com</email>
-    </developer>
+	<developer>
+	  <id>evili</id>
+	  <name>Evili del Rio</name>
+	  <email>evili.del.rio@gmail.com</email>
+	</developer>
   </developers>
   <scm>
-    <connection>scm:git:git://github.com/evili/${project.artifactId}-jenkins-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:evili/${project.artifactId}-jenkins-plugin.git</developerConnection>
-    <url>http://github.com/evili/${project.artifactId}-jenkins-plugin</url>
+	<connection>scm:git:git://github.com/evili/${project.artifactId}-jenkins-plugin.git</connection>
+	<developerConnection>scm:git:git@github.com:evili/${project.artifactId}-jenkins-plugin.git</developerConnection>
+	<url>http://github.com/evili/${project.artifactId}-jenkins-plugin</url>
   </scm>
   <repositories>
-    <repository>
-      <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
-    </repository>
+	<repository>
+	  <id>repo.jenkins-ci.org</id>
+	  <url>http://repo.jenkins-ci.org/public/</url>
+	</repository>
   </repositories>
   <pluginRepositories>
-    <pluginRepository>
-      <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
-    </pluginRepository>
+	<pluginRepository>
+	  <id>repo.jenkins-ci.org</id>
+	  <url>http://repo.jenkins-ci.org/public/</url>
+	</pluginRepository>
   </pluginRepositories>
-  
+  <build>
+	<plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.2</version><!--$NO-MVN-MAN-VER$-->
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>external.atlassian.jgitflow</groupId>
+        <artifactId>jgitflow-maven-plugin</artifactId>
+        <version>1.0-m4.3</version>
+        <configuration>
+          <flowInitContext>
+            <developBranchName>development</developBranchName>
+          </flowInitContext>
+          <!-- see goals wiki page for configuration options -->
+        </configuration>
+      </plugin>
+	</plugins>
+  </build>
+  <reporting>
+	<plugins>
+	  <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>findbugs-maven-plugin</artifactId>
+		<version>3.0.0</version>
+		<configuration>
+		  <findbugsXmlOutput>true</findbugsXmlOutput>
+		  <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+		  <xmlOutput>true</xmlOutput>
+		</configuration>
+	  </plugin>
+	</plugins>
+  </reporting>
   <dependencies>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>shiningpanda</artifactId>
-      <version>0.21</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>git</artifactId>
-      <version>2.3.4</version>
-    </dependency>
+	<dependency>
+	  <groupId>org.jenkins-ci.plugins</groupId>
+	  <artifactId>shiningpanda</artifactId>
+	  <version>0.21</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.jenkins-ci.plugins</groupId>
+	  <artifactId>git</artifactId>
+	  <version>2.3.4</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.mockito</groupId>
+	  <artifactId>mockito-all</artifactId>
+	  <version>1.10.19</version>
+	  <scope>test</scope>
+	</dependency>
   </dependencies>
-  
+
+  <inceptionYear>2015</inceptionYear>
+  <ciManagement>
+	<url>https://mdrc.no-ip/ci/job/${project.artifactId}-plugin-test/</url>
+	<system>hudson</system>
+  </ciManagement>
+  <properties>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
 </project>
