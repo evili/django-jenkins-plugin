@@ -67,8 +67,8 @@
         <configuration>
           <flowInitContext>
             <developBranchName>development</developBranchName>
+            <versionTagPrefix>v</versionTagPrefix>
           </flowInitContext>
-          <!-- see goals wiki page for configuration options -->
         </configuration>
       </plugin>
 	</plugins>
