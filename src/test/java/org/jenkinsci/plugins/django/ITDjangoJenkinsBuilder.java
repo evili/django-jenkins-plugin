@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.django;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.plugins.git.GitSCM;
@@ -33,6 +32,6 @@ public class ITDjangoJenkinsBuilder {
 		project.setScmCheckoutStrategy(scmCheckoutStrategy);
 		FreeStyleBuild build = project.scheduleBuild2(1).get();
 		String s = FileUtils.readFileToString(build.getLogFile());
-		assertThat("Output should contain scheduled tasks.", s, containsString("Finished: SUCCESS"));
+		assertTrue("Test Project Build should be successful.", s.contains("Finished: SUCCESS"));
 	}
 }
