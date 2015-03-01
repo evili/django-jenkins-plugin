@@ -1,3 +1,20 @@
+/*
+ * The MIT License Copyright (c) 2015, Evili del Rio i Silvan. Permission is
+ * hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the
+ * Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions: The above copyright notice and this
+ * permission notice shall be included in all copies or substantial portions of
+ * the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+ * EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+ * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
 package org.jenkinsci.plugins.django;
 
 import hudson.Extension;
@@ -24,149 +41,229 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
+/**
+ * Builds a jenkins job for Django projects.
+ */
 public class DjangoJenkinsBuilder extends Builder implements Serializable {
+    /** (non-Javadoc) @see java.io.Serializable#serialVersionUID. */
+    private static final long serialVersionUID = 4L;
+    /** Display name of this plugin. */
+    public static final String DISPLAY_NAME = "Django Jenkins Builder";
+    /** Default django-jenkins task list. */
+    public static final EnumSet<Task> DEFAULT_TASKS = EnumSet
+            .noneOf(Task.class);
+    /** Debug Logger. */
+    static final Logger LOGGER = Logger.getLogger(DjangoJenkinsBuilder.class
+            .getName());
+    /** Log size. */
+    private static final int LOG_SIZE = 1024 * 1024;
+    /** Django-jenkins task list. */
+    private final EnumSet<Task> tasks;
+    /** Project applications to be tested. */
+    private final String projectApps;
+    /** Enable coverage tool. */
+    private final boolean enableCoverage;
 
-	private static final long serialVersionUID = 4L;
-	public static final String DISPLAY_NAME = "Django Jenkins Builder";
-	public final static EnumSet<Task> DEFAULT_TASKS = EnumSet.noneOf(Task.class);
+    static {
+        /*
+         * By default, add any django-jenkins tasks that only depends on
+         * python-pip packages.
+         */
+        for (final Task t : EnumSet.allOf(Task.class)) {
+            if (t.getRequirements() != null) {
+                DEFAULT_TASKS.add(t);
+            }
+        }
+        FileHandler h;
+        final SimpleFormatter f = new SimpleFormatter();
+        try {
+            h = new FileHandler("%t/django-jenkins-builder.log", LOG_SIZE,
+                    2, true);
+            h.setLevel(Level.ALL);
+            h.setFormatter(f);
+            LOGGER.addHandler(h);
+        } catch (final SecurityException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (final IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        LOGGER.setLevel(Level.ALL);
+    }
 
-	final static Logger LOGGER = Logger.getLogger(DjangoJenkinsBuilder.class.getName());
+    /*
+     * (non-Javadoc)
+     * @see hudson.tasks.Builder#getDescriptor()
+     */
+    @Override
+    public final Descriptor<Builder> getDescriptor() {
 
-	private final EnumSet<Task> tasks;
-	private String projectApps;
-	private boolean enableCoverage;
+        LOGGER.info("Returning descriptor");
+        return super.getDescriptor();
+    }
 
-	static {
-		/*
-		 * By default, add any django-jenkins tasks that only
-		 * depends on python-pip packages.
-		 */
-		for(Task t: EnumSet.allOf(Task.class)) {
-			if(t.getRequirements() != null)
-				DEFAULT_TASKS.add(t);
-		}
-		FileHandler h;
-		SimpleFormatter f = new SimpleFormatter();
-		try {
-			h = new FileHandler("%t/django-jenkins-builder.log", 1024*1024, 2, true);
-			h.setLevel(Level.ALL);
-			h.setFormatter(f);
-			LOGGER.addHandler(h);
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		LOGGER.setLevel(Level.ALL);
-	}
+    /**
+     * Implementation of {@link Descriptor}.
+     */
+    @Extension
+    public static final class DescriptorImpl extends
+            BuildStepDescriptor<Builder> {
+        /** Server default django-jenkins task list. */
+        private EnumSet<Task> defaultTasks = DjangoJenkinsBuilder.DEFAULT_TASKS;
 
-	@Override
-	public Descriptor<Builder> getDescriptor() {
+        /*
+         * (non-Javadoc)
+         * @see
+         * hudson.model.Descriptor#configure(org.kohsuke.stapler.StaplerRequest,
+         * net.sf.json.JSONObject)
+         */
+        @Override
+        public boolean configure(final StaplerRequest req,
+                final JSONObject json) throws FormException {
+            LOGGER.info("In configure:");
+            LOGGER.info("JSON: " + json.toString(2));
+            try {
+                final JSONObject newJSONDefaults = json
+                        .getJSONObject("defaultTasks");
+                final Iterator<?> it = newJSONDefaults.keys();
+                final EnumSet<Task> newDefaults = EnumSet.noneOf(Task.class);
+                while (it.hasNext()) {
+                    final String task = (String) it.next();
+                    final boolean checked = newJSONDefaults.getBoolean(task);
+                    if (checked) {
+                        newDefaults.add(Task.getTask(task));
+                    }
+                }
+                defaultTasks = newDefaults;
+            } catch (final Exception e) {
+                LOGGER.info("Could not configure Builder: " + e.getMessage());
+            }
+            LOGGER.info("Saving...");
+            save();
+            LOGGER.info("Returning super.configure");
+            return super.configure(req, json);
+        }
 
-		LOGGER.info("Returning descriptor");
-		return (DescriptorImpl) super.getDescriptor();
-	}
+        /**
+         * Gets the default tasks.
+         *
+         * @return the default tasks
+         */
+        public EnumSet<Task> getDefaultTasks() {
+            LOGGER.info("Returning default tasks: " + defaultTasks);
+            return defaultTasks;
+        }
 
-	@Extension
-	public static final class DescriptorImpl
-	extends BuildStepDescriptor<Builder> {
-		private EnumSet<Task> defaultTasks = DjangoJenkinsBuilder.DEFAULT_TASKS;
+        /*
+         * (non-Javadoc)
+         * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)
+         */
+        @SuppressWarnings("rawtypes")
+        @Override
+        public boolean isApplicable(
+                final Class<? extends AbstractProject> aClass) {
+            LOGGER.info("Yes, we're applicable!");
+            return true;
+        }
 
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject json)
-				throws FormException {
-			LOGGER.info("In configure:");
-			LOGGER.info("JSON: "+json.toString(2));
-			try {
-				JSONObject newJSONDefaults = json.getJSONObject("defaultTasks");
-				Iterator<?> it = newJSONDefaults.keys();
-				EnumSet<Task> newDefaults = EnumSet.noneOf(Task.class);
-				while(it.hasNext()) {
-					String task = (String) it.next();
-					boolean checked = newJSONDefaults.getBoolean(task);
-					if(checked) {
-						newDefaults.add(Task.getTask(task));
-					}
-				}
-				defaultTasks = newDefaults;
-			}
-			catch (Exception e){
-				LOGGER.info("Could not configure Builder: "+e.getMessage());
-			}
-			LOGGER.info("Saving...");
-			save();
-			LOGGER.info("Returning super.configure");
-			return super.configure(req, json);
-		}
+        /*
+         * (non-Javadoc)
+         * @see hudson.model.Descriptor#getDisplayName()
+         */
+        @Override
+        public String getDisplayName() {
+            LOGGER.info("How We are called " + DISPLAY_NAME);
+            return DISPLAY_NAME;
+        }
+    }
 
-		public EnumSet<Task> getDefaultTasks() throws Exception {
-			LOGGER.info("Returning default tasks: "+defaultTasks);
-			return defaultTasks;
-		}
+    /**
+     * Instantiates a new django-jenkins builder.
+     *
+     * @param tasks
+     *            Django-jenkins tasks to be run.
+     * @param projectApps
+     *            Django project applications to be analyzed.
+     * @param enableCoverage
+     *            Enable coverage tool analysis.
+     */
+    @DataBoundConstructor
+    public DjangoJenkinsBuilder(final EnumSet<Task> tasks,
+            final String projectApps, final boolean enableCoverage) {
+        LOGGER.info("In Constructor");
+        // this.tasks = noTasks;
+        this.tasks = tasks;
+        this.projectApps = projectApps;
+        this.enableCoverage = enableCoverage;
+    }
 
-		@SuppressWarnings("rawtypes")
-		@Override
-		public boolean isApplicable(Class<? extends AbstractProject> aClass) {
-			LOGGER.info("Yes, we're applicable!");
-			return true;
-		}
+    /**
+     * Gets the tasks.
+     *
+     * @return the tasks
+     */
+    public final EnumSet<Task> getTasks() {
+        LOGGER.info("Returning tasks: " + tasks);
+        return tasks;
+    }
 
-		@Override
-		public String getDisplayName() {
-			LOGGER.info("How We are called "+DISPLAY_NAME );
-			return DISPLAY_NAME;
-		}
-	}
+    /**
+     * Gets the project applications.
+     *
+     * @return the project applications.
+     */
+    public final String getProjectApps() {
+        return projectApps;
+    }
 
-	@DataBoundConstructor
-	public DjangoJenkinsBuilder(EnumSet<Task> tasks, String projectApps, boolean enableCoverage) {
-		LOGGER.info("In Constructor");
-		//this.tasks = noTasks;
-		this.tasks = tasks;
-		this.projectApps = projectApps;
-		this.enableCoverage = enableCoverage;
-	}
+    /**
+     * Checks if is enable coverage.
+     *
+     * @return true, if coverage is enabled.
+     */
+    public final boolean isEnableCoverage() {
+        return enableCoverage;
+    }
 
-	public EnumSet<Task> getTasks() {
-		LOGGER.info("Returning tasks: "+tasks);
-		return tasks;
-	}
+    /*
+     * (non-Javadoc)
+     * @see
+     * hudson.tasks.BuildStepCompatibilityLayer#perform(
+     * hudson.model.AbstractBuild, hudson.Launcher, hudson.model.BuildListener)
+     */
+    @Override
+    public final boolean perform(final AbstractBuild<?, ?> build,
+            final Launcher launcher, final BuildListener listener)
+            throws InterruptedException, IOException {
 
-	public String getProjectApps() {
-		return projectApps;
-	}
+        final PrintStream logger = listener.getLogger();
 
-	public boolean isEnableCoverage() {
-		return enableCoverage;
-	}
+        logger.println("Performing Django-Jenkins build");
 
-	@Override
-	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
-			BuildListener listener) throws InterruptedException, IOException {
+        boolean status = false;
 
-		PrintStream logger = listener.getLogger();
+        final PythonVirtualenv venv = new PythonVirtualenv(build, launcher,
+                listener);
 
-		logger.println("Performing Django-Jenkins build");
-
-		boolean status = false;
-
-		PythonVirtualenv venv = new PythonVirtualenv(build, launcher, listener);
-
-		try {
-			logger.println("Calling VirtualEnv Builder");
-			EnumSet<Task> actualTasks = ((tasks == null) || (tasks.size() == 0)) ? DEFAULT_TASKS: tasks;
-			status =  venv.perform(actualTasks, projectApps, enableCoverage);
-		}
-		catch(Exception e) {
-			logger.println("Something went wrong: "+e.getMessage());
-			status = false;
-		}
-		if(status)
-			logger.println("Success");
-		else
-			logger.println("Build failed <:-( ");
-		return status;
-	}
+        try {
+            logger.println("Calling VirtualEnv Builder");
+            final EnumSet<Task> actualTasks;
+            if ((tasks == null) || (tasks.size() == 0)) {
+                actualTasks = DEFAULT_TASKS;
+            } else {
+                actualTasks = tasks;
+            }
+            status = venv.perform(actualTasks, projectApps, enableCoverage);
+        } catch (final Exception e) {
+            logger.println("Something went wrong: " + e.getMessage());
+            status = false;
+        }
+        if (status) {
+            logger.println("Success");
+        } else {
+            logger.println("Build failed <:-( ");
+        }
+        return status;
+    }
 }

@@ -126,7 +126,7 @@
 
   <inceptionYear>2015</inceptionYear>
   <ciManagement>
-	<url>https://mdrc.no-ip/ci/job/${project.artifactId}-plugin-test/</url>
+	<url>https://mdrc.no-ip.org/ci/job/${project.artifactId}-plugin-test/</url>
 	<system>hudson</system>
   </ciManagement>
   <properties>

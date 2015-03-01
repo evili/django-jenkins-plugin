@@ -19,37 +19,37 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 public class TestPythonVirtualenv {
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule();
+    @Rule
+    public MockitoRule rule = MockitoJUnit.rule();
 
-	@Mock
-	private AbstractBuild<?, ?> build;
+    @Mock
+    private AbstractBuild<?, ?> build;
 
-	@Mock
-	private Launcher launcher;
+    @Mock
+    private Launcher launcher;
 
-	@Mock
-	private BuildListener listener;
+    @Mock
+    private BuildListener listener;
 
-	private PythonVirtualenv venv;
+    private PythonVirtualenv venv;
 
 
-	@Before
-	public void setUp() {
-		PrintStream log = new PrintStream(new NullOutputStream());
-		when(listener.getLogger()).thenReturn(log );
-		venv = new PythonVirtualenv(build, launcher, listener);
-	}
+    @Before
+    public void setUp() {
+        final PrintStream log = new PrintStream(new NullOutputStream());
+        when(listener.getLogger()).thenReturn(log);
+        venv = new PythonVirtualenv(build, launcher, listener);
+    }
 
-	@Test
-	public void testPythonVirtualenv() throws Exception {
-		assertNotNull("We've got a null PythonVirtualenv", venv);
-	}
+    @Test
+    public void testPythonVirtualenv() throws Exception {
+        assertNotNull("We've got a null PythonVirtualenv", venv);
+    }
 
-	@Test
-	public void testPerform() throws Exception {
-		String projectApps = "items";
-		EnumSet<Task> actualTasks = EnumSet.allOf(Task.class);
-		assertFalse(venv.perform(actualTasks, projectApps, true));
-	}
+    @Test
+    public void testPerform() throws Exception {
+        final String projectApps = "items";
+        final EnumSet<Task> actualTasks = EnumSet.allOf(Task.class);
+        assertFalse(venv.perform(actualTasks, projectApps, true));
+    }
 }

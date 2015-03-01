@@ -1,15 +1,15 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <f:entry title="Project Applications" field="projectApps">
-  	<f:textarea/>
+    <f:textarea/>
   </f:entry>
   <f:section title="Advanced project settings">
     <f:advanced>
       <f:entry field="enableCoverage" title="Enable Coverage">
-		<f:checkbox default="true"/>
-	  </f:entry>
+        <f:checkbox default="true"/>
+      </f:entry>
       <f:entry title="Tasks" field="tasks">
-	    <f:enumSet field="tasks"/>
+       <f:enumSet field="tasks"/>
       </f:entry>
     </f:advanced>
   </f:section>
