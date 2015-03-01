@@ -76,7 +76,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-site-plugin</artifactId>
-        <version>3.3</version><!--$NO-MVN-MAN-VER$-->
+        <version>3.4</version>
       </plugin>
       <plugin>
         <groupId>external.atlassian.jgitflow</groupId>
@@ -91,6 +91,34 @@
       </plugin>
 	</plugins>
   </build>
+  <reporting>
+    <excludeDefaults>false</excludeDefaults>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>emma-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>checkstyle</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
   <dependencies>
 	<dependency>
 	  <groupId>org.jenkins-ci.plugins</groupId>
@@ -109,7 +137,6 @@
 	  <scope>test</scope>
 	</dependency>
   </dependencies>
-
   <inceptionYear>2015</inceptionYear>
   <ciManagement>
 	<url>https://mdrc.no-ip.org/ci/job/${project.artifactId}-plugin-test/</url>
