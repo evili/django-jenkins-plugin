@@ -38,6 +38,8 @@ import java.util.logging.SimpleFormatter;
 
 import net.sf.json.JSONObject;
 
+import org.jvnet.localizer.Localizable;
+import org.jvnet.localizer.ResourceBundleHolder;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -173,8 +175,11 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
          */
         @Override
         public String getDisplayName() {
-            LOGGER.info("How We are called " + DISPLAY_NAME);
-            return DISPLAY_NAME;
+            Localizable displayName =
+                        new Localizable(ResourceBundleHolder.get(
+                                        DjangoJenkinsBuilder.class), "displayName");
+            LOGGER.info("How We are called " + displayName);
+            return displayName.toString();
         }
     }
 
