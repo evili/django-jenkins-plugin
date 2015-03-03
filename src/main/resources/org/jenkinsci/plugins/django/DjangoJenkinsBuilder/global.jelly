@@ -2,7 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
   <f:section title="${%Django Jenkins Builder}">
-    <f:entry title="${%Jenkins Default Tasks}" field="defaultTasks"
+    <f:entry title="${%django-jenkins Default Tasks}" field="defaultTasks"
       description="${%List of django-jenkins default tasks to be executed}">
       <f:enumSet field="defaultTasks"/>
     </f:entry>

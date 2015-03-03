@@ -3,5 +3,5 @@
   This view is used to render the installed plugins page.
 -->
 <div>
-  This plugin runs all the django-jenkins tests on an unmodified Django project.
+  This plugin runs django-jenkins tasks and tests for Django projects.
 </div>
