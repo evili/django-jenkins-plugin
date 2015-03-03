@@ -176,8 +176,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
         @Override
         public String getDisplayName() {
             Localizable displayName =
-                        new Localizable(ResourceBundleHolder.get(
-                                        DjangoJenkinsBuilder.class), "displayName");
+                    Messages._DjangoJenkinsBuilder_DisplayName();
             LOGGER.info("How We are called " + displayName);
             return displayName.toString();
         }

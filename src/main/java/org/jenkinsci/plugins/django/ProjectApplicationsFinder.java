@@ -30,7 +30,8 @@ import jenkins.MasterToSlaveFileCallable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.NotFileFilter;
-import org.eclipse.jgit.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
+
 
 /**
  * The Class ProjectApplicationsFinder.
