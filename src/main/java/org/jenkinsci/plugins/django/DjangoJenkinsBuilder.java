@@ -39,7 +39,6 @@ import java.util.logging.SimpleFormatter;
 import net.sf.json.JSONObject;
 
 import org.jvnet.localizer.Localizable;
-import org.jvnet.localizer.ResourceBundleHolder;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
