@@ -46,8 +46,9 @@ public class PythonVirtualenv implements Serializable {
             "nosexcover django-extensions django-jenkins selenium";
     /** Name of the python package created to run django-jenkins tasks. */
     static final String DJANGO_JENKINS_MODULE = "jenkins_build";
-    /** Name of the django settings module loaded to run
-     * django-jenkins tasks. */
+    /**
+     * Name of the django settings module loaded to run django-jenkins tasks.
+     */
     static final String DJANGO_JENKINS_SETTINGS = "jenkins_settings";
     /** CLI flag to run coverage tool. */
     private static final String ENABLE_COVERAGE = "--enable-coverage";
@@ -55,27 +56,26 @@ public class PythonVirtualenv implements Serializable {
     private static final String COVERAGE_REQUIREMENT = "coverage";
 
     /**
-     * AbstractBuild.
-     * (non-Javadoc)
-     *  @see
-     *  DjangoJenkinsBuilder#perform(AbstractBuild, Launcher, BuildListener)
+     * AbstractBuild. (non-Javadoc)
+     *
+     * @see DjangoJenkinsBuilder#perform(AbstractBuild, Launcher, BuildListener)
      */
     private final AbstractBuild<?, ?> build;
     /**
-     * Launcher.
-     * (non-Javadoc)
+     * Launcher. (non-Javadoc)
+     *
      * @see DjangoJenkinsBuilder#perform(AbstractBuild, Launcher, BuildListener)
      */
     private final Launcher launcher;
     /**
-     * BuildListener.
-     * (non-Javadoc)
+     * BuildListener. (non-Javadoc)
+     *
      * @see DjangoJenkinsBuilder#perform(AbstractBuild, Launcher, BuildListener)
      */
     private final BuildListener listener;
 
-    /** Log stream. */
-    private PrintStream logger;
+    /** Workspace FilePah directory for the current build */
+    private FilePath workspace = null;
 
     /**
      * Instantiates a new python virtualenv.
@@ -112,7 +112,7 @@ public class PythonVirtualenv implements Serializable {
     public final boolean perform(final EnumSet<Task> actualTasks,
             final String projectApps, final boolean enableCoverage)
             throws InterruptedException, IOException {
-        logger = listener.getLogger();
+        PrintStream logger = listener.getLogger();
 
         logger.println("Perfroming " + actualTasks);
         List<PythonInstallation> pInstalls;
@@ -122,6 +122,11 @@ public class PythonVirtualenv implements Serializable {
         } catch (final NullPointerException e) {
             logger.println("No Python Installations found: " + e.getMessage());
             return false;
+        }
+
+        workspace = build.getWorkspace();
+        if (workspace == null) {
+            throw new IOException("No workspace found");
         }
 
         final String pythonName = pInstalls.get(0).getName();
@@ -170,6 +175,7 @@ public class PythonVirtualenv implements Serializable {
      */
     private String installDjangoJenkinsRequirements(
             final EnumSet<Task> actualTasks, final boolean enableCoverage) {
+        PrintStream logger = listener.getLogger();
         String pip = "pip install " + DJANGO_JENKINS_REQUIREMENTS;
         if (enableCoverage) {
             pip += " " + COVERAGE_REQUIREMENT;
@@ -189,15 +195,15 @@ public class PythonVirtualenv implements Serializable {
     /**
      * Install project requirements.
      *
-     * @return the string
-     * @throws InterruptedException
-     *             the interrupted exception
+     * @return the requirements file found
+     * @throws InterruptedException, IOException
      */
-    private String installProjectRequirements() throws InterruptedException {
+    private String installProjectRequirements() throws InterruptedException,
+            IOException {
+        PrintStream logger = listener.getLogger();
         String requirementsFile = "# No project requirements found";
         try {
-            requirementsFile = build.getWorkspace().act(
-                    new ProjectRequirementsFinder());
+            requirementsFile = workspace.act(new ProjectRequirementsFinder());
         } catch (final IOException e) {
             logger.println("No requirements file found:");
             logger.println(e.getMessage());
@@ -220,13 +226,15 @@ public class PythonVirtualenv implements Serializable {
      */
     private String createBuildPackage(final EnumSet<Task> actualTasks,
             final String projectApps) throws IOException, InterruptedException {
+
+        PrintStream logger = listener.getLogger();
+
         String actualProjectApps = projectApps;
-        final FilePath djModule = new FilePath(build.getWorkspace(),
+        final FilePath djModule = new FilePath(workspace,
                 DJANGO_JENKINS_MODULE);
         logger.println("Finding Django project settings");
-
-        final String settingsModule = build.getWorkspace().act(
-                new DjangoProjectSettingsFinder());
+        final String settingsModule = workspace
+                .act(new DjangoProjectSettingsFinder());
 
         logger.println("Creating Build Package");
         if (!djModule.act(new CreateBuildPackage())) {
@@ -236,8 +244,7 @@ public class PythonVirtualenv implements Serializable {
         if ((actualProjectApps == null)
                 || (actualProjectApps.trim().length() == 0)) {
             logger.println("No project apps provided. Trying to find some");
-            actualProjectApps = build.getWorkspace().act(
-                    new ProjectApplicationsFinder());
+            actualProjectApps = workspace.act(new ProjectApplicationsFinder());
         }
 
         logger.println("Creating jenkins settings module");
