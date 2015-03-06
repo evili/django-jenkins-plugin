@@ -133,12 +133,12 @@ public class PythonVirtualenv implements Serializable {
 
         final ArrayList<String> commandList = new ArrayList<String>();
 
+        logger.println("Installing Project Requirements");
+        commandList.add(installProjectRequirements());
+
         logger.println("Installing Django Requirements");
         commandList.add(installDjangoJenkinsRequirements(actualTasks,
                 enableCoverage));
-
-        logger.println("Installing Project Requirements");
-        commandList.add(installProjectRequirements());
 
         logger.println("Building jenkins package/module");
         commandList.add(createBuildPackage(actualTasks, projectApps));
