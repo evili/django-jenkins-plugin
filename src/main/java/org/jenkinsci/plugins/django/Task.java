@@ -30,9 +30,6 @@ import java.util.Map;
  */
 public enum Task {
 
-    /** PEP8 style guide check tool. */
-    PEP8("PEP8", "django_jenkins.tasks.run_pep8", "pep8"),
-
     /** PYLINT code analysis. */
     PYLINT("PYLINT", "django_jenkins.tasks.run_pylint", "pylint"),
 
@@ -41,6 +38,9 @@ public enum Task {
 
     /** FLAKE8 wrapper around pyflakes and pep8. */
     FLAKE8("FLAKE8", "django_jenkins.tasks.run_flake8", "flake8"),
+
+    /** PEP8 style guide check tool. */
+    PEP8("PEP8", "django_jenkins.tasks.run_pep8", "pep8"),
 
     /** JSHINT JavaScript quality tool. */
     JSHINT("JSHINT", "django_jenkins.tasks.run_jshint", null),
