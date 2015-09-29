@@ -54,7 +54,7 @@ public class PythonVirtualenv implements Serializable {
     private static final String ENABLE_COVERAGE = "--enable-coverage";
     /** Python requirement for coverage tool. */
     // django_jenkins<=0.17.0 needs coverage<4.0
-    private static final String COVERAGE_REQUIREMENT = "coverage<4.0";
+    private static final String COVERAGE_REQUIREMENT = "coverage'<'4.0";
 
     /**
      * AbstractBuild. (non-Javadoc)
