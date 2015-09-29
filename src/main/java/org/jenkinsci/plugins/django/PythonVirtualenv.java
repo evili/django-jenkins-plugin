@@ -41,6 +41,8 @@ import org.apache.commons.lang.StringUtils;
 public class PythonVirtualenv implements Serializable {
     /** (non-Javadoc) @see java.io.Serializable#serialVersionUID. */
     private static final long serialVersionUID = 2L;
+    /** PIP Install command */
+    static final String PIP_INSTALL = "pip install --upgrade";
     /** Python requirements needed for the django-jenkins module. */
     static final String DJANGO_JENKINS_REQUIREMENTS =
             "nosexcover django-extensions django-jenkins selenium";
@@ -177,7 +179,7 @@ public class PythonVirtualenv implements Serializable {
     private String installDjangoJenkinsRequirements(
             final EnumSet<Task> actualTasks, final boolean enableCoverage) {
         PrintStream logger = listener.getLogger();
-        String pip = "pip install " + DJANGO_JENKINS_REQUIREMENTS;
+        String pip = PIP_INSTALL + " " + DJANGO_JENKINS_REQUIREMENTS;
         if (enableCoverage) {
             pip += " " + COVERAGE_REQUIREMENT;
         }
@@ -209,7 +211,7 @@ public class PythonVirtualenv implements Serializable {
             logger.println("No requirements file found:");
             logger.println(e.getMessage());
         }
-        return "pip install -r " + requirementsFile;
+        return PIP_INSTALL + " -r " + requirementsFile;
     }
 
     /**
