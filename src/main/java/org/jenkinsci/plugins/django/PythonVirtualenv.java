@@ -42,7 +42,8 @@ public class PythonVirtualenv implements Serializable {
     /** (non-Javadoc) @see java.io.Serializable#serialVersionUID. */
     private static final long serialVersionUID = 2L;
     /** PIP Install command */
-    static final String PIP_INSTALL = "pip install --upgrade";
+    static final String PIP_INSTALL = "pip install";
+    static final String PIP_UPGRADE = " --upgrade ";
     /** Python requirements needed for the django-jenkins module. */
     static final String DJANGO_JENKINS_REQUIREMENTS =
             "nosexcover django-extensions django-jenkins selenium";
@@ -135,14 +136,19 @@ public class PythonVirtualenv implements Serializable {
         final String pythonName = pInstalls.get(0).getName();
 
         final ArrayList<String> commandList = new ArrayList<String>();
+        /* First upgrade pip and friends */
+        logger.println("Upgrade pip first.");
+        commandList.add(PIP_INSTALL+PIP_UPGRADE+"pip");
 
-        logger.println("Installing Project Requirements");
-        commandList.add(installProjectRequirements());
-
+        /* DjangoJenkins Requirements (can be overriden by project ones) */
         logger.println("Installing Django Requirements");
         commandList.add(installDjangoJenkinsRequirements(actualTasks,
                 enableCoverage));
-
+        
+        /* Project Requirements */
+        logger.println("Installing Project Requirements");
+        commandList.add(installProjectRequirements());
+        
         logger.println("Building jenkins package/module");
         commandList.add(createBuildPackage(actualTasks, projectApps));
 
@@ -179,7 +185,7 @@ public class PythonVirtualenv implements Serializable {
     private String installDjangoJenkinsRequirements(
             final EnumSet<Task> actualTasks, final boolean enableCoverage) {
         PrintStream logger = listener.getLogger();
-        String pip = PIP_INSTALL + " " + DJANGO_JENKINS_REQUIREMENTS;
+        String pip = PIP_INSTALL + PIP_UPGRADE + DJANGO_JENKINS_REQUIREMENTS;
         if (enableCoverage) {
             pip += " " + COVERAGE_REQUIREMENT;
         }
@@ -211,7 +217,7 @@ public class PythonVirtualenv implements Serializable {
             logger.println("No requirements file found:");
             logger.println(e.getMessage());
         }
-        return PIP_INSTALL + " -r " + requirementsFile;
+        return PIP_INSTALL + PIP_UPGRADE + " -r " + requirementsFile;
     }
 
     /**
