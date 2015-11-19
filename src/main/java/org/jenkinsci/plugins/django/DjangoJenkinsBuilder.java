@@ -47,7 +47,7 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public class DjangoJenkinsBuilder extends Builder implements Serializable {
     /** (non-Javadoc) @see java.io.Serializable#serialVersionUID. */
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 5L;
     /** Display name of this plugin. */
     public static final String DISPLAY_NAME = "Django Jenkins Builder";
     /** Default django-jenkins task list. */
@@ -62,6 +62,8 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
     private final EnumSet<Task> tasks;
     /** Project applications to be tested. */
     private final String projectApps;
+    /** Django settings module to use */
+    private String settingsModule;
     /** Enable coverage tool. */
     private final boolean enableCoverage;
 
@@ -188,16 +190,19 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
      *            Django-jenkins tasks to be run.
      * @param projectApps
      *            Django project applications to be analyzed.
+     * @param settingsModule
+     *            Django settings module under which the tests are run.
      * @param enableCoverage
      *            Enable coverage tool analysis.
      */
     @DataBoundConstructor
     public DjangoJenkinsBuilder(final EnumSet<Task> tasks,
-            final String projectApps, final boolean enableCoverage) {
+            final String projectApps, String settingsModule, final boolean enableCoverage) {
         LOGGER.info("In Constructor");
         // this.tasks = noTasks;
         this.tasks = tasks;
         this.projectApps = projectApps;
+        this.settingsModule = settingsModule;
         this.enableCoverage = enableCoverage;
     }
 
@@ -218,6 +223,15 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
      */
     public final String getProjectApps() {
         return projectApps;
+    }
+
+    /**
+     * Gets the settings module.
+     *
+     * @return the settings module.
+     */
+    public String getSettingsModule() {
+        return settingsModule;
     }
 
     /**
@@ -257,7 +271,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
             } else {
                 actualTasks = tasks;
             }
-            status = venv.perform(actualTasks, projectApps, enableCoverage);
+            status = venv.perform(actualTasks, projectApps, settingsModule, enableCoverage);
         } catch (final Exception e) {
             logger.println("Something went wrong: " + e.getMessage());
             status = false;
@@ -269,4 +283,5 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
         }
         return status;
     }
+
 }

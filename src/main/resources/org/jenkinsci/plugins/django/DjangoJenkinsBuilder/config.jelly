@@ -3,6 +3,9 @@
   <f:entry title="Project Applications" field="projectApps">
     <f:textarea/>
   </f:entry>
+  <f:entry title="${%Settings Module}" field="settingsModule">
+    <f:textbox/>
+  </f:entry>
   <f:section title="${%Advanced project settings}">
     <f:advanced>
       <f:entry field="enableCoverage" title="${%Enable Coverage}">

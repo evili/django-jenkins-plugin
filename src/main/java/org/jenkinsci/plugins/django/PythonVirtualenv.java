@@ -105,6 +105,7 @@ public class PythonVirtualenv implements Serializable {
      *            the actual tasks
      * @param projectApps
      *            the project apps
+     * @param settingsModule 
      * @param enableCoverage
      *            the enable coverage
      * @return true, if successful
@@ -114,7 +115,7 @@ public class PythonVirtualenv implements Serializable {
      *             Signals that an I/O exception has occurred.
      */
     public final boolean perform(final EnumSet<Task> actualTasks,
-            final String projectApps, final boolean enableCoverage)
+            final String projectApps, String settingsModule, final boolean enableCoverage)
             throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
 
@@ -140,7 +141,7 @@ public class PythonVirtualenv implements Serializable {
         logger.println("Upgrade pip first.");
         commandList.add(PIP_INSTALL+PIP_UPGRADE+"pip");
 
-        /* DjangoJenkins Requirements (can be overriden by project ones) */
+        /* DjangoJenkins Requirements (can be overridden by project ones) */
         logger.println("Installing Django Requirements");
         commandList.add(installDjangoJenkinsRequirements(actualTasks,
                 enableCoverage));
@@ -150,7 +151,7 @@ public class PythonVirtualenv implements Serializable {
         commandList.add(installProjectRequirements());
         
         logger.println("Building jenkins package/module");
-        commandList.add(createBuildPackage(actualTasks, projectApps));
+        commandList.add(createBuildPackage(actualTasks, projectApps, settingsModule));
 
         logger.println("Adding jenkins tasks");
         String jenkinsCli = "$PYTHON_EXE manage.py jenkins";
@@ -227,6 +228,7 @@ public class PythonVirtualenv implements Serializable {
      *            the actual tasks
      * @param projectApps
      *            the project apps
+     * @param settingsModule 
      * @return the string
      * @throws IOException
      *             Signals that an I/O exception has occurred.
@@ -234,16 +236,20 @@ public class PythonVirtualenv implements Serializable {
      *             the interrupted exception
      */
     private String createBuildPackage(final EnumSet<Task> actualTasks,
-            final String projectApps) throws IOException, InterruptedException {
+            final String projectApps, final String settingsModule) throws IOException, InterruptedException {
 
         PrintStream logger = listener.getLogger();
 
         String actualProjectApps = projectApps;
+        String actualSettings = settingsModule;
         final FilePath djModule = new FilePath(workspace,
                 DJANGO_JENKINS_MODULE);
         logger.println("Finding Django project settings");
-        final String settingsModule = workspace
+        if (actualSettings == null) {
+            logger.println("No settings provided. Trying to find one.");
+            actualSettings = workspace
                 .act(new DjangoProjectSettingsFinder());
+        }
 
         logger.println("Creating Build Package");
         if (!djModule.act(new CreateBuildPackage())) {
@@ -257,7 +263,7 @@ public class PythonVirtualenv implements Serializable {
         }
 
         logger.println("Creating jenkins settings module");
-        if (!djModule.act(new CreateDjangoModuleSettings(settingsModule,
+        if (!djModule.act(new CreateDjangoModuleSettings(actualSettings,
                 actualTasks, actualProjectApps))) {
             throw new IOException("Could not create jenkins setting module.");
         }

@@ -49,7 +49,8 @@ public class TestPythonVirtualenv {
     @Test
     public void testPerform() throws Exception {
         final String projectApps = "items";
+        final String settingsModule = null;
         final EnumSet<Task> actualTasks = EnumSet.allOf(Task.class);
-        assertFalse(venv.perform(actualTasks, projectApps, true));
+        assertFalse(venv.perform(actualTasks, projectApps, settingsModule, true));
     }
 }

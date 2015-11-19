@@ -55,7 +55,7 @@ public class ProjectApplicationsFinder extends
         final NotFileFilter excludeJenkins = new NotFileFilter(
                 new NameFileFilter(PythonVirtualenv.DJANGO_JENKINS_MODULE));
 
-        final String[] appFiles = {"views.py", "models.py", "urls.py"};
+        final String[] appFiles = {"views.py", "models.py", "urls.py", "tests.py"};
         final NameFileFilter filterApps = new NameFileFilter(appFiles);
 
         final Iterator<File> iter = FileUtils.iterateFiles(dir, filterApps,

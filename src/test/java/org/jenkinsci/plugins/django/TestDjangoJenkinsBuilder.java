@@ -27,13 +27,15 @@ public class TestDjangoJenkinsBuilder {
     public JenkinsRule jRule = new JenkinsRule();
 
     private String projectApps;
+    private String settingsModule;
     private boolean enableCoverage;
 
     @Mock
     private StaplerRequest staplerRequest;
 
     public DjangoJenkinsBuilder getBuilder() {
-        return new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS, projectApps, enableCoverage);
+        return new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS, projectApps, settingsModule,
+                enableCoverage);
     }
 
     public void checkDefaultTasks(final DjangoJenkinsBuilder builder,
@@ -46,6 +48,7 @@ public class TestDjangoJenkinsBuilder {
 
     @Before
     public void setUp() {
+        settingsModule = null;
         projectApps = "items";
         enableCoverage = true;
     }
@@ -64,6 +67,7 @@ public class TestDjangoJenkinsBuilder {
 
     @Test
     public void testRoundTrip() throws Exception {
+        settingsModule = "bdd_tests.bdd_setings";
         DjangoJenkinsBuilder before = getBuilder();
         DjangoJenkinsBuilder after = jRule.configRoundtrip(before);
         jRule.assertEqualBeans(before, after, "tasks,projectApps,enableCoverage");
@@ -90,6 +94,13 @@ public class TestDjangoJenkinsBuilder {
         checkDefaultTasks(builder , changedDefaults);
     }
 
+    @Test
+    public void testSettingsModule() throws Exception {
+        settingsModule = "bdd_settings";
+        final DjangoJenkinsBuilder builder = getBuilder();
+        assertEquals(builder.getSettingsModule(), settingsModule);
+    }
+    
     @Test
     public void testGetDefaultTasks() throws Exception {
         checkDefaultTasks(getBuilder(), DjangoJenkinsBuilder.DEFAULT_TASKS);
