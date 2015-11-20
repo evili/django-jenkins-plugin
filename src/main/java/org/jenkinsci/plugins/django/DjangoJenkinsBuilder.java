@@ -197,6 +197,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
      * @param settingsModule
      *            Django settings module under which the tests are run.
      * @param requirementsFile 
+     *            PIP requirements file to install dependencies for tests.
      * @param enableCoverage
      *            Enable coverage tool analysis.
      */
