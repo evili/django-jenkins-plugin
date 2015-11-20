@@ -41,6 +41,9 @@ import org.apache.commons.lang.StringUtils;
 public class PythonVirtualenv implements Serializable {
     /** (non-Javadoc) @see java.io.Serializable#serialVersionUID. */
     private static final long serialVersionUID = 2L;
+    /** PIP Install command */
+    static final String PIP_INSTALL = "pip install";
+    static final String PIP_UPGRADE = " --upgrade ";
     /** Python requirements needed for the django-jenkins module. */
     static final String DJANGO_JENKINS_REQUIREMENTS =
             "nosexcover django-extensions django-jenkins selenium";
@@ -53,6 +56,7 @@ public class PythonVirtualenv implements Serializable {
     /** CLI flag to run coverage tool. */
     private static final String ENABLE_COVERAGE = "--enable-coverage";
     /** Python requirement for coverage tool. */
+    // django_jenkins<=0.17.0 needs coverage<4.0
     private static final String COVERAGE_REQUIREMENT = "coverage";
 
     /**
@@ -101,6 +105,8 @@ public class PythonVirtualenv implements Serializable {
      *            the actual tasks
      * @param projectApps
      *            the project apps
+     * @param settingsModule 
+     * @param requirementsFile 
      * @param enableCoverage
      *            the enable coverage
      * @return true, if successful
@@ -110,7 +116,7 @@ public class PythonVirtualenv implements Serializable {
      *             Signals that an I/O exception has occurred.
      */
     public final boolean perform(final EnumSet<Task> actualTasks,
-            final String projectApps, final boolean enableCoverage)
+            final String projectApps, String settingsModule, String requirementsFile, final boolean enableCoverage)
             throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
 
@@ -132,16 +138,21 @@ public class PythonVirtualenv implements Serializable {
         final String pythonName = pInstalls.get(0).getName();
 
         final ArrayList<String> commandList = new ArrayList<String>();
+        /* First upgrade pip and friends */
+        logger.println("Upgrade pip first.");
+        commandList.add(PIP_INSTALL+PIP_UPGRADE+"pip");
 
-        logger.println("Installing Project Requirements");
-        commandList.add(installProjectRequirements());
-
+        /* DjangoJenkins Requirements (can be overridden by project ones) */
         logger.println("Installing Django Requirements");
         commandList.add(installDjangoJenkinsRequirements(actualTasks,
                 enableCoverage));
-
+        
+        /* Project Requirements */
+        logger.println("Installing Project Requirements");
+        commandList.add(installProjectRequirements(requirementsFile));
+        
         logger.println("Building jenkins package/module");
-        commandList.add(createBuildPackage(actualTasks, projectApps));
+        commandList.add(createBuildPackage(actualTasks, projectApps, settingsModule));
 
         logger.println("Adding jenkins tasks");
         String jenkinsCli = "$PYTHON_EXE manage.py jenkins";
@@ -176,7 +187,7 @@ public class PythonVirtualenv implements Serializable {
     private String installDjangoJenkinsRequirements(
             final EnumSet<Task> actualTasks, final boolean enableCoverage) {
         PrintStream logger = listener.getLogger();
-        String pip = "pip install " + DJANGO_JENKINS_REQUIREMENTS;
+        String pip = PIP_INSTALL + PIP_UPGRADE + DJANGO_JENKINS_REQUIREMENTS;
         if (enableCoverage) {
             pip += " " + COVERAGE_REQUIREMENT;
         }
@@ -194,21 +205,24 @@ public class PythonVirtualenv implements Serializable {
 
     /**
      * Install project requirements.
+     * @param requirementsFile 
      *
      * @return the requirements file found
      * @throws InterruptedException, IOException
      */
-    private String installProjectRequirements() throws InterruptedException,
+    private String installProjectRequirements(String requirementsFile) throws InterruptedException,
             IOException {
         PrintStream logger = listener.getLogger();
-        String requirementsFile = "# No project requirements found";
-        try {
-            requirementsFile = workspace.act(new ProjectRequirementsFinder());
-        } catch (final IOException e) {
-            logger.println("No requirements file found:");
-            logger.println(e.getMessage());
+        if(requirementsFile==null) {
+            requirementsFile = "# No project requirements found";
+            try {
+                requirementsFile = workspace.act(new ProjectRequirementsFinder());
+            } catch (final IOException e) {
+                logger.println("No requirements file found:");
+                logger.println(e.getMessage());
+            }
         }
-        return "pip install -r " + requirementsFile;
+        return PIP_INSTALL + PIP_UPGRADE + " -r " + requirementsFile;
     }
 
     /**
@@ -218,6 +232,7 @@ public class PythonVirtualenv implements Serializable {
      *            the actual tasks
      * @param projectApps
      *            the project apps
+     * @param settingsModule 
      * @return the string
      * @throws IOException
      *             Signals that an I/O exception has occurred.
@@ -225,16 +240,20 @@ public class PythonVirtualenv implements Serializable {
      *             the interrupted exception
      */
     private String createBuildPackage(final EnumSet<Task> actualTasks,
-            final String projectApps) throws IOException, InterruptedException {
+            final String projectApps, final String settingsModule) throws IOException, InterruptedException {
 
         PrintStream logger = listener.getLogger();
 
         String actualProjectApps = projectApps;
+        String actualSettings = settingsModule;
         final FilePath djModule = new FilePath(workspace,
                 DJANGO_JENKINS_MODULE);
         logger.println("Finding Django project settings");
-        final String settingsModule = workspace
+        if (actualSettings == null) {
+            logger.println("No settings provided. Trying to find one.");
+            actualSettings = workspace
                 .act(new DjangoProjectSettingsFinder());
+        }
 
         logger.println("Creating Build Package");
         if (!djModule.act(new CreateBuildPackage())) {
@@ -248,7 +267,7 @@ public class PythonVirtualenv implements Serializable {
         }
 
         logger.println("Creating jenkins settings module");
-        if (!djModule.act(new CreateDjangoModuleSettings(settingsModule,
+        if (!djModule.act(new CreateDjangoModuleSettings(actualSettings,
                 actualTasks, actualProjectApps))) {
             throw new IOException("Could not create jenkins setting module.");
         }
