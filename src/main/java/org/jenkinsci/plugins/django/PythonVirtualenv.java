@@ -213,7 +213,8 @@ public class PythonVirtualenv implements Serializable {
     private String installProjectRequirements(String requirementsFile) throws InterruptedException,
             IOException {
         PrintStream logger = listener.getLogger();
-        if(requirementsFile==null) {
+        if(requirementsFile == null
+           || (requirementsFile.trim().length() == 0)) {
             requirementsFile = "# No project requirements found";
             try {
                 requirementsFile = workspace.act(new ProjectRequirementsFinder());
@@ -249,7 +250,8 @@ public class PythonVirtualenv implements Serializable {
         final FilePath djModule = new FilePath(workspace,
                 DJANGO_JENKINS_MODULE);
         logger.println("Finding Django project settings");
-        if (actualSettings == null) {
+        if (actualSettings == null
+            || (actualSettings.trim().length() == 0)) {
             logger.println("No settings provided. Trying to find one.");
             actualSettings = workspace
                 .act(new DjangoProjectSettingsFinder());
