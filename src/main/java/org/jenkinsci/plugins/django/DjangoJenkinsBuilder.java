@@ -63,16 +63,20 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
     /** Project applications to be tested. */
     private final String projectApps;
     /** Django settings module to use */
-    private String settingsModule;
+    private final String settingsModule;
+    /** Pip requirements to use */
+    private final String requirementsFile;
     /** Enable coverage tool. */
     private final boolean enableCoverage;
+
 
     static {
         /*
          * By default, add any django-jenkins tasks that only depends on
-         * python-pip packages.
+         * python-pip packages except flake8 (incompatible with pyflakes).
          */
-        for (final Task t : EnumSet.allOf(Task.class)) {
+        EnumSet<Task> defultSet = EnumSet.complementOf(EnumSet.of(Task.FLAKE8));
+        for (final Task t : defultSet) {
             if (t.getRequirements() != null) {
                 DEFAULT_TASKS.add(t);
             }
@@ -192,17 +196,19 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
      *            Django project applications to be analyzed.
      * @param settingsModule
      *            Django settings module under which the tests are run.
+     * @param requirementsFile 
      * @param enableCoverage
      *            Enable coverage tool analysis.
      */
     @DataBoundConstructor
     public DjangoJenkinsBuilder(final EnumSet<Task> tasks,
-            final String projectApps, String settingsModule, final boolean enableCoverage) {
+            final String projectApps, String settingsModule, String requirementsFile, final boolean enableCoverage) {
         LOGGER.info("In Constructor");
         // this.tasks = noTasks;
         this.tasks = tasks;
         this.projectApps = projectApps;
         this.settingsModule = settingsModule;
+        this.requirementsFile = requirementsFile;
         this.enableCoverage = enableCoverage;
     }
 
@@ -232,6 +238,15 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
      */
     public String getSettingsModule() {
         return settingsModule;
+    }
+
+    /**
+     * Gets the requirements file.
+     *
+     * @return the requirements file name.
+     */
+    public String getRequirementsFile() {
+        return requirementsFile;
     }
 
     /**
@@ -271,7 +286,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
             } else {
                 actualTasks = tasks;
             }
-            status = venv.perform(actualTasks, projectApps, settingsModule, enableCoverage);
+            status = venv.perform(actualTasks, projectApps, settingsModule, requirementsFile, enableCoverage);
         } catch (final Exception e) {
             logger.println("Something went wrong: " + e.getMessage());
             status = false;
@@ -283,5 +298,4 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
         }
         return status;
     }
-
 }

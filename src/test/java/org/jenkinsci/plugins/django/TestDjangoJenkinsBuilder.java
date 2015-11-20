@@ -28,13 +28,20 @@ public class TestDjangoJenkinsBuilder {
 
     private String projectApps;
     private String settingsModule;
+    private String requirementsFile;
     private boolean enableCoverage;
-
+    
+    
     @Mock
     private StaplerRequest staplerRequest;
 
+    
+
     public DjangoJenkinsBuilder getBuilder() {
-        return new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS, projectApps, settingsModule,
+        return new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS, 
+                projectApps, 
+                settingsModule,
+                requirementsFile,
                 enableCoverage);
     }
 
@@ -49,6 +56,7 @@ public class TestDjangoJenkinsBuilder {
     @Before
     public void setUp() {
         settingsModule = null;
+        requirementsFile = null;
         projectApps = "items";
         enableCoverage = true;
     }
@@ -100,7 +108,14 @@ public class TestDjangoJenkinsBuilder {
         final DjangoJenkinsBuilder builder = getBuilder();
         assertEquals(builder.getSettingsModule(), settingsModule);
     }
-    
+
+    @Test
+    public void testRequirementsFile() throws Exception {
+        requirementsFile = "test_requirements.txt";
+        final DjangoJenkinsBuilder builder = getBuilder();
+        assertEquals(builder.getRequirementsFile(), requirementsFile);
+    }
+        
     @Test
     public void testGetDefaultTasks() throws Exception {
         checkDefaultTasks(getBuilder(), DjangoJenkinsBuilder.DEFAULT_TASKS);

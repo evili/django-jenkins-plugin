@@ -57,7 +57,7 @@ public class PythonVirtualenv implements Serializable {
     private static final String ENABLE_COVERAGE = "--enable-coverage";
     /** Python requirement for coverage tool. */
     // django_jenkins<=0.17.0 needs coverage<4.0
-    private static final String COVERAGE_REQUIREMENT = "coverage'<'4.0";
+    private static final String COVERAGE_REQUIREMENT = "coverage";
 
     /**
      * AbstractBuild. (non-Javadoc)
@@ -106,6 +106,7 @@ public class PythonVirtualenv implements Serializable {
      * @param projectApps
      *            the project apps
      * @param settingsModule 
+     * @param requirementsFile 
      * @param enableCoverage
      *            the enable coverage
      * @return true, if successful
@@ -115,7 +116,7 @@ public class PythonVirtualenv implements Serializable {
      *             Signals that an I/O exception has occurred.
      */
     public final boolean perform(final EnumSet<Task> actualTasks,
-            final String projectApps, String settingsModule, final boolean enableCoverage)
+            final String projectApps, String settingsModule, String requirementsFile, final boolean enableCoverage)
             throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
 
@@ -148,7 +149,7 @@ public class PythonVirtualenv implements Serializable {
         
         /* Project Requirements */
         logger.println("Installing Project Requirements");
-        commandList.add(installProjectRequirements());
+        commandList.add(installProjectRequirements(requirementsFile));
         
         logger.println("Building jenkins package/module");
         commandList.add(createBuildPackage(actualTasks, projectApps, settingsModule));
@@ -204,19 +205,22 @@ public class PythonVirtualenv implements Serializable {
 
     /**
      * Install project requirements.
+     * @param requirementsFile 
      *
      * @return the requirements file found
      * @throws InterruptedException, IOException
      */
-    private String installProjectRequirements() throws InterruptedException,
+    private String installProjectRequirements(String requirementsFile) throws InterruptedException,
             IOException {
         PrintStream logger = listener.getLogger();
-        String requirementsFile = "# No project requirements found";
-        try {
-            requirementsFile = workspace.act(new ProjectRequirementsFinder());
-        } catch (final IOException e) {
-            logger.println("No requirements file found:");
-            logger.println(e.getMessage());
+        if(requirementsFile==null) {
+            requirementsFile = "# No project requirements found";
+            try {
+                requirementsFile = workspace.act(new ProjectRequirementsFinder());
+            } catch (final IOException e) {
+                logger.println("No requirements file found:");
+                logger.println(e.getMessage());
+            }
         }
         return PIP_INSTALL + PIP_UPGRADE + " -r " + requirementsFile;
     }
