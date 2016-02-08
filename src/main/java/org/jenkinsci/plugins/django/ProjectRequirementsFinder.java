@@ -38,7 +38,7 @@ public class ProjectRequirementsFinder extends
     private static final long serialVersionUID = 2L;
     /** List of requirements file names to search for. */
     private static final String[] REQUIREMENTS_CANDIDATE = {
-            "requirements.txt", "requirements.pip" };
+        "test_requirements.txt", "requirements.txt", "requirements.pip" };
 
     /*
      * (non-Javadoc)

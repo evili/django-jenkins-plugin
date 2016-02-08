@@ -78,21 +78,27 @@ public class CreateDjangoModuleSettings extends
                     + ".py");
             settingsFile.createNewFile();
             settingsWriter = new PrintWriter(settingsFile);
+            settingsWriter.println("import django");
             settingsWriter.println("from " + settingsModule + " import *");
-            settingsWriter.println("INSTALLED_APPS = ('django_extensions',"
+            settingsWriter.println("# In Django 1.9 and above all settings are lists");
+            settingsWriter.println("if  django.VERSION[0] <= 1 and django.VERSION[1] <= 8:");
+            settingsWriter.println("  INSTALLED_APPS = ('django_extensions',"
                     + "'django_jenkins',) +INSTALLED_APPS");
+            settingsWriter.println("else:");
+            settingsWriter.println("  INSTALLED_APPS = ['django_extensions',"
+                    + "'django_jenkins',] +INSTALLED_APPS");
             final String[] apps = projectApps.trim().replace(" ", "")
                     .split(",");
-            settingsWriter.println("PROJECT_APPS = (");
+            settingsWriter.println("PROJECT_APPS = [");
             for (final String a : apps) {
                 settingsWriter.println("'" + a + "',");
             }
-            settingsWriter.println(")");
-            settingsWriter.println("JENKINS_TASKS = (\n");
+            settingsWriter.println("]");
+            settingsWriter.println("JENKINS_TASKS = [\n");
             for (final Task s : tasks) {
                 settingsWriter.println("'" + s.getPythonPackage() + "',");
             }
-            settingsWriter.println(")");
+            settingsWriter.println("]");
             settingsWriter.close();
         } catch (final Exception e) {
             DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
