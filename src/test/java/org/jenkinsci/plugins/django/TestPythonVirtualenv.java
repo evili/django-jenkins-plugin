@@ -52,6 +52,7 @@ public class TestPythonVirtualenv {
         final String settingsModule = null;
         final String requirementsFile = null;
         final EnumSet<Task> actualTasks = EnumSet.allOf(Task.class);
-        assertFalse(venv.perform(actualTasks, projectApps, settingsModule, requirementsFile, true));
+        final String pythonVersion = null;
+        assertFalse(venv.perform(actualTasks, projectApps, settingsModule, requirementsFile, true, pythonVersion));
     }
 }

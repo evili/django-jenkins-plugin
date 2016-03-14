@@ -68,7 +68,8 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
     private final String requirementsFile;
     /** Enable coverage tool. */
     private final boolean enableCoverage;
-
+    /** Python version to use */
+    private final String pythonVersion;
 
     static {
         /*
@@ -196,14 +197,14 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
      *            Django project applications to be analyzed.
      * @param settingsModule
      *            Django settings module under which the tests are run.
-     * @param requirementsFile 
+     * @param requirementsFile
      *            PIP requirements file to install dependencies for tests.
      * @param enableCoverage
      *            Enable coverage tool analysis.
      */
     @DataBoundConstructor
     public DjangoJenkinsBuilder(final EnumSet<Task> tasks,
-            final String projectApps, String settingsModule, String requirementsFile, final boolean enableCoverage) {
+            final String projectApps, final String settingsModule, final String requirementsFile, final boolean enableCoverage, final String pythonVersion) {
         LOGGER.info("In Constructor");
         // this.tasks = noTasks;
         this.tasks = tasks;
@@ -211,6 +212,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
         this.settingsModule = settingsModule;
         this.requirementsFile = requirementsFile;
         this.enableCoverage = enableCoverage;
+        this.pythonVersion = pythonVersion;
     }
 
     /**
@@ -259,6 +261,15 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
         return enableCoverage;
     }
 
+    /**
+     * Gets the Python version required.
+     *
+     * @return the Python version.
+     */
+    public String getPythonVersion() {
+        return pythonVersion;
+    }
+
     /*
      * (non-Javadoc)
      * @see
@@ -287,7 +298,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
             } else {
                 actualTasks = tasks;
             }
-            status = venv.perform(actualTasks, projectApps, settingsModule, requirementsFile, enableCoverage);
+            status = venv.perform(actualTasks, projectApps, settingsModule, requirementsFile, enableCoverage, pythonVersion);
         } catch (final Exception e) {
             logger.println("Something went wrong: " + e.getMessage());
             status = false;

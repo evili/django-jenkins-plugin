@@ -105,8 +105,8 @@ public class PythonVirtualenv implements Serializable {
      *            the actual tasks
      * @param projectApps
      *            the project apps
-     * @param settingsModule 
-     * @param requirementsFile 
+     * @param settingsModule
+     * @param requirementsFile
      * @param enableCoverage
      *            the enable coverage
      * @return true, if successful
@@ -116,7 +116,7 @@ public class PythonVirtualenv implements Serializable {
      *             Signals that an I/O exception has occurred.
      */
     public final boolean perform(final EnumSet<Task> actualTasks,
-            final String projectApps, String settingsModule, String requirementsFile, final boolean enableCoverage)
+            final String projectApps, final String settingsModule, final String requirementsFile, final boolean enableCoverage, final String pythonVersion)
             throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
 
@@ -135,9 +135,25 @@ public class PythonVirtualenv implements Serializable {
             throw new IOException("No workspace found");
         }
 
-        final String pythonName = pInstalls.get(0).getName();
+        String pythonName = null;
+        // If user wants some python version, use it or die
+        if (pythonVersion!=null) {
+            for(PythonInstallation pyInst: pInstalls) {
+                if(pyInst.getName() == pythonVersion) {
+                    pythonName = pyInst.getName();
+                }
+            }
+        }
+        else {
+            // Use default version if there is no setting.
+            pythonName = pInstalls.get(0).getName();
+        }
+        if (pythonName==null) {
+            throw new IOException("No Python version "+pythonVersion+" found.");
+        }
 
         final ArrayList<String> commandList = new ArrayList<String>();
+
         /* First upgrade pip and friends */
         logger.println("Upgrade pip first.");
         commandList.add(PIP_INSTALL+PIP_UPGRADE+"pip");
@@ -146,11 +162,12 @@ public class PythonVirtualenv implements Serializable {
         logger.println("Installing Django Requirements");
         commandList.add(installDjangoJenkinsRequirements(actualTasks,
                 enableCoverage));
-        
+
         /* Project Requirements */
         logger.println("Installing Project Requirements");
         commandList.add(installProjectRequirements(requirementsFile));
-        
+
+
         logger.println("Building jenkins package/module");
         commandList.add(createBuildPackage(actualTasks, projectApps, settingsModule));
 
@@ -205,7 +222,7 @@ public class PythonVirtualenv implements Serializable {
 
     /**
      * Install project requirements.
-     * @param requirementsFile 
+     * @param requirementsFile
      *
      * @return the requirements file found
      * @throws InterruptedException, IOException
@@ -233,7 +250,7 @@ public class PythonVirtualenv implements Serializable {
      *            the actual tasks
      * @param projectApps
      *            the project apps
-     * @param settingsModule 
+     * @param settingsModule
      * @return the string
      * @throws IOException
      *             Signals that an I/O exception has occurred.

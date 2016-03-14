@@ -30,19 +30,20 @@ public class TestDjangoJenkinsBuilder {
     private String settingsModule;
     private String requirementsFile;
     private boolean enableCoverage;
-    
-    
+    private String pythonVersion;
+
     @Mock
     private StaplerRequest staplerRequest;
 
-    
+
 
     public DjangoJenkinsBuilder getBuilder() {
-        return new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS, 
-                projectApps, 
+        return new DjangoJenkinsBuilder(DjangoJenkinsBuilder.DEFAULT_TASKS,
+                projectApps,
                 settingsModule,
                 requirementsFile,
-                enableCoverage);
+                enableCoverage,
+                pythonVersion);
     }
 
     public void checkDefaultTasks(final DjangoJenkinsBuilder builder,
@@ -63,7 +64,7 @@ public class TestDjangoJenkinsBuilder {
 
     @Test
     public void testGlobalConfig() throws Exception {
-        final Plugin djPlugin = jRule.getPluginManager().getPlugin("django").getPlugin();
+        final Plugin  djPlugin = jRule.getPluginManager().getPlugin("django").getPlugin();
         assertThat("Django Plugin sould not be null.", djPlugin, notNullValue());
     }
 
@@ -115,7 +116,7 @@ public class TestDjangoJenkinsBuilder {
         final DjangoJenkinsBuilder builder = getBuilder();
         assertEquals(builder.getRequirementsFile(), requirementsFile);
     }
-        
+
     @Test
     public void testGetDefaultTasks() throws Exception {
         checkDefaultTasks(getBuilder(), DjangoJenkinsBuilder.DEFAULT_TASKS);
