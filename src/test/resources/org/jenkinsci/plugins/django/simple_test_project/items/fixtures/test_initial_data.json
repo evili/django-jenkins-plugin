@@ -1,0 +1,16 @@
+[
+{
+    "fields": {
+        "name": "First item"
+    },
+    "model": "items.item",
+    "pk": 1
+},
+{
+    "fields": {
+        "name": "Second item"
+    },
+    "model": "items.item",
+    "pk": 2
+}
+]

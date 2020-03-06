@@ -26,7 +26,7 @@ package org.jenkinsci.plugins.django;
 import static org.junit.Assert.assertTrue;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
-import hudson.plugins.git.GitSCM;
+// import hudson.plugins.git.GitSCM;
 
 import java.util.EnumSet;
 
@@ -44,8 +44,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 public class ITDjangoJenkinsBuilder {
 
     /** Django simple test project. */
-    private static final String DJANGO_TEST_PROJECT_GIT_URL =
-            "https://github.com/evili/django_test_deploy.git";
+    private static final String DJANGO_TEST_PROJECT = "simple_test_project";
     /** Jenkins Rule @see {@link JenkinsRule}. */
     @Rule
     public JenkinsRule jRule  = new JenkinsRule();
@@ -61,12 +60,17 @@ public class ITDjangoJenkinsBuilder {
         final FreeStyleProject project = jRule.createFreeStyleProject();
         final DjangoJenkinsBuilder djangoBuilder =
                 new DjangoJenkinsBuilder(EnumSet.of(Task.PEP8), "items", null, null, true);
+	project.setCustomWorkspace(
+				   ITDjangoJenkinsBuilder.class.getResource(
+				      DJANGO_TEST_PROJECT
+				   ).toString()
+	);
         project.getBuildersList().add(djangoBuilder);
-        final GitSCM scm = new GitSCM(DJANGO_TEST_PROJECT_GIT_URL);
-        project.setScm(scm);
-        final DefaultSCMCheckoutStrategyImpl scmCheckoutStrategy =
-                new DefaultSCMCheckoutStrategyImpl();
-        project.setScmCheckoutStrategy(scmCheckoutStrategy);
+        // final GitSCM scm = new GitSCM(DJANGO_TEST_PROJECT_GIT_URL);
+        // project.setScm(scm);
+        // final DefaultSCMCheckoutStrategyImpl scmCheckoutStrategy =
+        //        new DefaultSCMCheckoutStrategyImpl();
+        // project.setScmCheckoutStrategy(scmCheckoutStrategy);
         final FreeStyleBuild build = project.scheduleBuild2(1).get();
         final String s = FileUtils.readFileToString(build.getLogFile());
         final String[] lines = StringUtils.split(s, "\n\r");
