@@ -3,4 +3,3 @@ branches:
     - master
     - development
 language: java
-script: mvn site
