@@ -2,4 +2,6 @@ branches:
   only:
     - master
     - development
+jdk:
+  - openjdk8
 language: java
