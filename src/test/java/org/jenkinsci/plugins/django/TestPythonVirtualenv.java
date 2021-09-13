@@ -36,7 +36,7 @@ public class TestPythonVirtualenv {
 
     @Before
     public void setUp() {
-        final PrintStream log = new PrintStream(new NullOutputStream());
+        final PrintStream log = new PrintStream(NullOutputStream.NULL_OUTPUT_STREAM);
         when(listener.getLogger()).thenReturn(log);
         venv = new PythonVirtualenv(build, launcher, listener);
     }
