@@ -1,5 +1,5 @@
 # django-jenkins-plugin
-[![Build Status](https://travis-ci.org/evili/django-jenkins-plugin.svg?branch=master)](https://travis-ci.org/evili/django-jenkins-plugin)
+[![Build Status](https://travis-ci.com/evili/django-jenkins-plugin.svg?branch=master)](https://travis-ci.com/evili/django-jenkins-plugin)
 
 Django Jenkins Plugin tests [Django](https://www.djangoproject.com/)
 projects with the help of the
