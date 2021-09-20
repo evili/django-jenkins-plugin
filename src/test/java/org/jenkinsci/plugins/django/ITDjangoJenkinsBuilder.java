@@ -72,7 +72,9 @@ public class ITDjangoJenkinsBuilder {
         //        new DefaultSCMCheckoutStrategyImpl();
         // project.setScmCheckoutStrategy(scmCheckoutStrategy);
         final FreeStyleBuild build = project.scheduleBuild2(1).get();
-        final String s = FileUtils.readFileToString(build.getLogFile());
+	final char[] cbuf = new char[2048];
+	final int numChars = build.getLogReader().read(cbuf);
+        final String s = String.valueOf(cbuf);
         final String[] lines = StringUtils.split(s, "\n\r");
         final String lastL = lines[lines.length - 1];
         assertTrue("Test Project Build should be successful: '" + lastL + "'",
