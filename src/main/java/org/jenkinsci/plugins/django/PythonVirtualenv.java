@@ -42,17 +42,17 @@ public class PythonVirtualenv implements Serializable {
     /** (non-Javadoc) @see java.io.Serializable#serialVersionUID. */
     private static final long serialVersionUID = 2L;
     /** PIP Install command */
-    static final String PIP_INSTALL = "pip install";
-    static final String PIP_UPGRADE = " --upgrade ";
+    private static final String PIP_INSTALL = "pip install";
+    private static final String PIP_UPGRADE = " --upgrade ";
     /** Python requirements needed for the django-jenkins module. */
-    static final String DJANGO_JENKINS_REQUIREMENTS =
+    private static final String DJANGO_JENKINS_REQUIREMENTS =
             "nosexcover django-extensions django-jenkins selenium";
     /** Name of the python package created to run django-jenkins tasks. */
-    static final String DJANGO_JENKINS_MODULE = "jenkins_build";
+    protected static final String DJANGO_JENKINS_MODULE = "jenkins_build";
     /**
      * Name of the django settings module loaded to run django-jenkins tasks.
      */
-    static final String DJANGO_JENKINS_SETTINGS = "jenkins_settings";
+    protected static final String DJANGO_JENKINS_SETTINGS = "jenkins_settings";
     /** CLI flag to run coverage tool. */
     private static final String ENABLE_COVERAGE = "--enable-coverage";
     /** Python requirement for coverage tool. */
@@ -213,17 +213,18 @@ public class PythonVirtualenv implements Serializable {
     private String installProjectRequirements(String requirementsFile) throws InterruptedException,
             IOException {
         PrintStream logger = listener.getLogger();
-        if(requirementsFile == null
-           || (requirementsFile.trim().length() == 0)) {
-            requirementsFile = "# No project requirements found";
+	String reqFile = requirementsFile;
+        if(reqFile == null
+           || (reqFile.trim().length() == 0)) {
+            reqFile = "# No project requirements found";
             try {
-                requirementsFile = workspace.act(new ProjectRequirementsFinder());
+                reqFile = workspace.act(new ProjectRequirementsFinder());
             } catch (final IOException e) {
                 logger.println("No requirements file found:");
                 logger.println(e.getMessage());
             }
         }
-        return PIP_INSTALL + PIP_UPGRADE + " -r " + requirementsFile;
+        return PIP_INSTALL + PIP_UPGRADE + " -r " + reqFile;
     }
 
     /**
