@@ -51,7 +51,6 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
     @Override
     public final Boolean invoke(final File dir, final VirtualChannel channel) {
         File initFile;
-        PrintWriter initWriter;
         DjangoJenkinsBuilder.LOGGER.info("Creating "
                 + PythonVirtualenv.DJANGO_JENKINS_MODULE);
         try {
@@ -59,7 +58,7 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
             if (dir.mkdirs() ) {
 		initFile = new File(dir, "__init__.py");
 		if(initFile.createNewFile()) {
-		    initWriter = new PrintWriter(initFile, "UTF-8");
+		    PrintWriter initWriter = new PrintWriter(initFile, "UTF-8");
 		    initWriter.println("#");
 		    initWriter.close();
 		}
@@ -68,9 +67,6 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
             DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
             return Boolean.FALSE;
         }
-	finally {
-	    initWriter.close();
-	}
 
         return Boolean.TRUE;
 

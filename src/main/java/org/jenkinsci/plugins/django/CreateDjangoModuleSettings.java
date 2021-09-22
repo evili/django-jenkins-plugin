@@ -72,12 +72,11 @@ public class CreateDjangoModuleSettings extends
         DjangoJenkinsBuilder.LOGGER
                 .info("Creating special djano-jenkins settings file");
         File settingsFile;
-        PrintWriter settingsWriter;
         try {
             settingsFile = new File(f, PythonVirtualenv.DJANGO_JENKINS_SETTINGS
                     + ".py");
             if(settingsFile.createNewFile()) {
-		settingsWriter = new PrintWriter(settingsFile, "UTF-8");
+		PrintWriter settingsWriter = new PrintWriter(settingsFile, "UTF-8");
 		settingsWriter.println("from " + settingsModule + " import *");
 		settingsWriter.println("INSTALLED_APPS = ('django_extensions',"
 				       + "'django_jenkins',) +INSTALLED_APPS");
@@ -99,9 +98,7 @@ public class CreateDjangoModuleSettings extends
             DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
             return Boolean.FALSE;
         }
-	finally {
-	    settingsWriter.close();
-	}
+
         return Boolean.TRUE;
     }
 }
