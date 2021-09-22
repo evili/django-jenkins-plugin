@@ -47,6 +47,7 @@
 		</pluginRepository>
 	</pluginRepositories>
 	<build>
+	      <pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -82,7 +83,18 @@
 					</flowInitContext>
 				</configuration>
 			</plugin>
+			<plugin>
+			  <groupId>org.sonarsource.scanner.maven</groupId>
+			  <artifactId>sonar-maven-plugin</artifactId>
+			  <version>3.7.0.1746</version>
+			</plugin>
+			<plugin>
+			  <groupId>org.jacoco</groupId>
+			  <artifactId>jacoco-maven-plugin</artifactId>
+			  <version>0.8.6</version>
+			</plugin>
 		</plugins>
+	      </pluginManagement>
 	</build>
 	<reporting>
 		<excludeDefaults>false</excludeDefaults>
@@ -147,4 +159,34 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
                 <sonar.projectKey>django-jenkins-plugin</sonar.projectKey>
 	</properties>
+  <profiles>
+    <profile>
+      <id>coverage</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report</id>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
