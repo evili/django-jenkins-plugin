@@ -21,7 +21,6 @@ import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 
 import jenkins.MasterToSlaveFileCallable;
 
@@ -39,6 +38,7 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
      * Instantiates a new creates the build package.
      */
     public CreateBuildPackage() {
+	// Nothing is needed here.
     }
 
     /*
@@ -60,7 +60,6 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
 		if(initFile.createNewFile()) {
 		    try(PrintWriter initWriter = new PrintWriter(initFile, "UTF-8")) {
 			initWriter.println("#");
-			initWriter.close();
 		    }
 		}
 	    }

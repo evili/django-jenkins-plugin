@@ -22,7 +22,7 @@ import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.EnumSet;
+import java.util.Set;
 
 import jenkins.MasterToSlaveFileCallable;
 
@@ -36,10 +36,10 @@ public class CreateDjangoModuleSettings extends
     private static final long serialVersionUID = 2L;
     /** Name of the django settigns module. */
     private final String settingsModule;
-    /** List of {@link Tasks} to perform. */
-    private final EnumSet<Task> tasks;
     /** List of comma separated project applications. */
     private final String projectApps;
+    /** List of {@link Tasks} to perform. */
+    protected final Set<Task> tasks;
 
     /**
      * Instantiates a new creates the django module settings.
@@ -53,7 +53,7 @@ public class CreateDjangoModuleSettings extends
      *            django-jenkins tasks.
      */
     public CreateDjangoModuleSettings(final String settingsModule,
-            final EnumSet<Task> tasks, final String projectApps) {
+            final Set<Task> tasks, final String projectApps) {
         this.settingsModule = settingsModule;
         this.tasks = tasks;
         this.projectApps = projectApps;
@@ -92,7 +92,6 @@ public class CreateDjangoModuleSettings extends
 			settingsWriter.println("'" + s.getPythonPackage() + "',");
 		    }
 		    settingsWriter.println(")");
-		    settingsWriter.close();
 		}
 	    }
         } catch (final Exception e) {

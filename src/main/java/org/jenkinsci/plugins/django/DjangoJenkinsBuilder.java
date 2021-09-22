@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.Iterator;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -90,11 +91,9 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
             h.setFormatter(f);
             LOGGER.addHandler(h);
         } catch (final SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.info("Security exception");
         } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.info("IO exception");
         }
         LOGGER.setLevel(Level.ALL);
     }
