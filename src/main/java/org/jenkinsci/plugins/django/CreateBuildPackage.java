@@ -58,9 +58,10 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
             if (dir.mkdirs() ) {
 		initFile = new File(dir, "__init__.py");
 		if(initFile.createNewFile()) {
-		    PrintWriter initWriter = new PrintWriter(initFile, "UTF-8");
-		    initWriter.println("#");
-		    initWriter.close();
+		    try(PrintWriter initWriter = new PrintWriter(initFile, "UTF-8")) {
+			initWriter.println("#");
+			initWriter.close();
+		    }
 		}
 	    }
         } catch (final Exception e) {

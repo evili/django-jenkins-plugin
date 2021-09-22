@@ -291,6 +291,7 @@ public class DjangoJenkinsBuilder extends Builder implements Serializable {
         } catch (final Exception e) {
             logger.println("Something went wrong: " + e.getMessage());
             status = false;
+	    Thread.currentThread().interrupt();
         }
         if (status) {
             logger.println("Success");
