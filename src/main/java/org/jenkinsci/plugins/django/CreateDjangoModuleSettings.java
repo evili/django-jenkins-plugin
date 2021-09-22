@@ -99,6 +99,9 @@ public class CreateDjangoModuleSettings extends
             DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
             return Boolean.FALSE;
         }
+	finally {
+	    settingsWriter.close();
+	}
         return Boolean.TRUE;
     }
 }

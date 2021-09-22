@@ -68,6 +68,9 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
             DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
             return Boolean.FALSE;
         }
+	finally {
+	    initWriter.close();
+	}
 
         return Boolean.TRUE;
 
