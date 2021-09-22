@@ -15,6 +15,7 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -62,6 +63,7 @@ public class TestDjangoJenkinsBuilder {
         enableCoverage = true;
     }
 
+    @Ignore
     @Test
     public void testGlobalConfig() throws Exception {
         final Plugin djPlugin = jRule.getPluginManager().getPlugin("django").getPlugin();
