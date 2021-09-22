@@ -64,13 +64,13 @@ public class PythonVirtualenv implements Serializable {
      *
      * @see DjangoJenkinsBuilder#perform(AbstractBuild, Launcher, BuildListener)
      */
-    private final AbstractBuild<?, ?> build;
+    private final transient AbstractBuild<?, ?> build;
     /**
      * Launcher. (non-Javadoc)
      *
      * @see DjangoJenkinsBuilder#perform(AbstractBuild, Launcher, BuildListener)
      */
-    private final Launcher launcher;
+    private final transient Launcher launcher;
     /**
      * BuildListener. (non-Javadoc)
      *

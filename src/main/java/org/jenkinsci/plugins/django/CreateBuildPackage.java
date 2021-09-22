@@ -21,6 +21,7 @@ import hudson.remoting.VirtualChannel;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 import jenkins.MasterToSlaveFileCallable;
 
@@ -55,12 +56,14 @@ public class CreateBuildPackage extends MasterToSlaveFileCallable<Boolean> {
                 + PythonVirtualenv.DJANGO_JENKINS_MODULE);
         try {
             FileUtils.deleteDirectory(dir);
-            dir.mkdirs();
-            initFile = new File(dir, "__init__.py");
-            initFile.createNewFile();
-            initWriter = new PrintWriter(initFile);
-            initWriter.println("#");
-            initWriter.close();
+            if (dir.mkdirs() ) {
+		initFile = new File(dir, "__init__.py");
+		if(initFile.createNewFile()) {
+		    initWriter = new PrintWriter(initFile, "UTF-8");
+		    initWriter.println("#");
+		    initWriter.close();
+		}
+	    }
         } catch (final Exception e) {
             DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
             return Boolean.FALSE;

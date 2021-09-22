@@ -76,24 +76,25 @@ public class CreateDjangoModuleSettings extends
         try {
             settingsFile = new File(f, PythonVirtualenv.DJANGO_JENKINS_SETTINGS
                     + ".py");
-            settingsFile.createNewFile();
-            settingsWriter = new PrintWriter(settingsFile);
-            settingsWriter.println("from " + settingsModule + " import *");
-            settingsWriter.println("INSTALLED_APPS = ('django_extensions',"
-                    + "'django_jenkins',) +INSTALLED_APPS");
-            final String[] apps = projectApps.trim().replace(" ", "")
+            if(settingsFile.createNewFile()) {
+		settingsWriter = new PrintWriter(settingsFile, "UTF-8");
+		settingsWriter.println("from " + settingsModule + " import *");
+		settingsWriter.println("INSTALLED_APPS = ('django_extensions',"
+				       + "'django_jenkins',) +INSTALLED_APPS");
+		final String[] apps = projectApps.trim().replace(" ", "")
                     .split(",");
-            settingsWriter.println("PROJECT_APPS = (");
-            for (final String a : apps) {
-                settingsWriter.println("'" + a + "',");
-            }
-            settingsWriter.println(")");
-            settingsWriter.println("JENKINS_TASKS = (\n");
-            for (final Task s : tasks) {
-                settingsWriter.println("'" + s.getPythonPackage() + "',");
-            }
-            settingsWriter.println(")");
-            settingsWriter.close();
+		settingsWriter.println("PROJECT_APPS = (");
+		for (final String a : apps) {
+		    settingsWriter.println("'" + a + "',");
+		}
+		settingsWriter.println(")");
+		settingsWriter.println("JENKINS_TASKS = (\n");
+		for (final Task s : tasks) {
+		    settingsWriter.println("'" + s.getPythonPackage() + "',");
+		}
+		settingsWriter.println(")");
+		settingsWriter.close();
+	    }
         } catch (final Exception e) {
             DjangoJenkinsBuilder.LOGGER.info(e.getMessage());
             return Boolean.FALSE;
