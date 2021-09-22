@@ -34,7 +34,6 @@ import jenkins.scm.DefaultSCMCheckoutStrategyImpl;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -56,7 +55,6 @@ public class ITDjangoJenkinsBuilder {
      * @throws Exception if any error occurs.
      *
      */
-    @Ignore
     @Test
     public final void testPluginLoads() throws Exception {
         final FreeStyleProject project = jRule.createFreeStyleProject();
